@@ -8,4 +8,12 @@ _rand(::Type{BigInt}) = rand(big.(typemin(Int128):typemax(Int128)))
 _rand(T::Type{<:Union{String,Symbol}}) = T(randstring())
 _rand(T::Type{<:Union{Missing,Nothing}}) = T()
 
+# return a pair of types, the first of which is not Nothing
+# (Nothing is not a valid key type, as isless is not implemented)
+function _randtypes()
+    A, B = rand(TYPES, 2)
+    A === Nothing && return _randtypes()
+    A, B
+end
+
 include("FlatDict.jl")

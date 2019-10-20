@@ -1,6 +1,6 @@
 module FlatCollections
 
-import Base: get, setindex!
+import Base: get, length, setindex!
 
 include("FlatDict.jl")
 
