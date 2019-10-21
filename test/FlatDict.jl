@@ -4,14 +4,56 @@ end
 
 @testset "update ($A, $B)" for (A, B) in gettypes()
     fd = FlatDict{A,B}()
-    a, b = _rand.((A, B))
-    fd[a] = b
+    a, b, c = _rand.((A, B, B))
+    res = fd[a] = b
+    @test res === b
+
     if B !== Missing
         @test (a => b) in fd
         @test fd[a] === b
     else
         @test missing === ((a => b) in fd)
         @test fd[a] === b === missing
+    end
+
+    if A <: Number
+        x = A(0)
+        @assert isequal(x, 0)
+        fd[0] = b
+        @test isequal(fd[0], b)
+        @test isequal(fd[x], b)
+        fd[x] = c
+        @test isequal(fd[0], c)
+        @test isequal(fd[x], c)
+    end
+    if B <: Number
+        y = B(0)
+        @assert isequal(y, 0)
+        fd[a] = 0
+        @test isequal(fd[a], 0)
+        @test isequal(fd[a], y)
+        fd[a] = y
+        @test isequal(fd[a], 0)
+        @test isequal(fd[a], y)
+    end
+    i = Int64(2)^60+1
+    if A <: Base.IEEEFloat
+        k = A(i)
+        @assert k != i
+        @assert k isa A
+        fd[k] = b
+        @test isequal(fd[k], b)
+        @test_throws KeyError fd[i]
+        @test_throws ArgumentError fd[i] = b
+    end
+    if B <: Base.IEEEFloat
+        k = B(i)
+        @assert k != i
+        @assert k isa B
+        fd[a] = i
+        @test fd[a] === k
+        fd[a] = k
+        @test fd[a] === k
     end
 end
 

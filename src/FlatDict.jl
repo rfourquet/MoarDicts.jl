@@ -15,7 +15,7 @@ struct FlatDict{K,V} <: AbstractDict{K,V}
 end
 
 
-## resort!
+## internal: resort! & makekey
 
 function resort!(fd::FlatDict)
     keys, vals, news = fd.keys, fd.vals, fd.news
@@ -79,12 +79,22 @@ function resort!(fd::FlatDict)
     fd
 end
 
+# convert key0 to a valid key for flat dict
+function makekey(::FlatDict{K}, key0) where K
+    key = convert(K, key0)
+    isequal(key, key0) ||
+        throw(ArgumentError("$(limitrepr(key0)) is not a valid key for type $K"))
+    key
+end
+
+
 ## update
 
-_setindex!(fd::FlatDict, val, key) = push!(fd.news, key => Some(val))
+_setindex!(fd::FlatDict{K}, val, key::K) where {K} =
+    push!(fd.news, key => Some(convert(valtype(fd), val)))
 
 function setindex!(fd::FlatDict, val, key)
-    _setindex!(fd, val, key)
+    _setindex!(fd, val, makekey(fd, key))
 end
 
 
