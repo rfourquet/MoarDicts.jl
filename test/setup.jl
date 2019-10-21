@@ -19,10 +19,12 @@ showstr(x, kv::Pair...) = sprint((io,x) -> show(IOContext(io, :limit => true, :d
 
 mutable struct TestArgs
     ntypescombos::Int
+    special::Bool
     types::Vector{DataType}
 end
 
 TestArgs() = TestArgs(5,
+                      true,
                       DataType[Nothing, Missing, Int32, Int64, BigInt,
                                Float32, Float64, BigFloat, String, Symbol])
 
@@ -47,6 +49,8 @@ function parse_test_args!(args=ARGS)
         elseif startswith(arg, "types=")
             types = getfield.(Ref(Main), Symbol.(split(arg[7:end], ',')))
             copy!(TEST_ARGS.types, types)
+        elseif startswith(arg, "special=")
+            TEST_ARGS.special = parse(Bool, arg[9:end])
         else
             @info "ignored argument: $arg"
         end
@@ -64,6 +68,19 @@ function gettypes()
                     for B in TEST_ARGS.types]
         else
             AB = Set{Tuple{DataType,DataType}}()
+            nonnothing = setdiff(TEST_ARGS.types, [Nothing])
+            if TEST_ARGS.special && !isempty(nonnothing)
+                if Missing in TEST_ARGS.types
+                    push!(AB, (Missing, rand(nonnothing)))
+                    push!(AB, (rand(nonnothing), Missing))
+                end
+                if Nothing in TEST_ARGS.types
+                    push!(AB, (rand(nonnothing), Nothing))
+                end
+            end
+            while length(AB) > TEST_ARGS.ntypescombos
+                pop!(AB, rand(AB))
+            end
             while length(AB) < TEST_ARGS.ntypescombos
                 push!(AB, _randtypes(TEST_ARGS.types))
             end
