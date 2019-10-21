@@ -23,7 +23,7 @@ mutable struct TestArgs
     types::Vector{DataType}
 end
 
-TestArgs() = TestArgs(5,
+TestArgs() = TestArgs(9,
                       true,
                       DataType[Nothing, Missing, Int32, Int64, BigInt,
                                Float32, Float64, BigFloat, String, Symbol])
@@ -70,6 +70,7 @@ function gettypes()
         else
             AB = Set{Tuple{DataType,DataType}}()
             nonnothing = setdiff(TEST_ARGS.types, [Nothing])
+            floats = intersect(TEST_ARGS.types, Base.uniontypes(Base.IEEEFloat))
             if TEST_ARGS.special && !isempty(nonnothing)
                 if Missing in TEST_ARGS.types
                     push!(AB, (Missing, rand(nonnothing)))
@@ -77,6 +78,10 @@ function gettypes()
                 end
                 if Nothing in TEST_ARGS.types
                     push!(AB, (rand(nonnothing), Nothing))
+                end
+                if !isempty(floats)
+                    push!(AB, (rand(floats), rand(TEST_ARGS.types)))
+                    push!(AB, (rand(nonnothing), rand(floats)))
                 end
             end
             while length(AB) > TEST_ARGS.ntypescombos
