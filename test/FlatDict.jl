@@ -22,11 +22,13 @@ end
     fd = FlatDict{A,B}()
 
     @test length(fd) == 0
+    @test isempty(fd)
 
     a, b = _rand.((A, B))
     fd[a] = b
 
     @test get(fd, a, :def) === b
+    @test !isempty(fd)
     @test length(fd) == 1
     # test again, length triggered a `resort!`
     @test get(fd, a, :def) === b

@@ -94,6 +94,8 @@ _length(fd::FlatDict) = length(fd.keys)
 
 length(fd::FlatDict) = _length(resort!(fd))
 
+isempty(fd::FlatDict) = length(fd) == 0
+
 function get(fd::FlatDict, key, default)
     idx = findlast(kv -> isequal(key, first(kv)), fd.news)
     if idx !== nothing
