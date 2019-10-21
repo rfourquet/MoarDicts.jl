@@ -55,6 +55,10 @@ end
         fd[a] = k
         @test fd[a] === k
     end
+
+    @test !isempty(fd)
+    empty!(fd)
+    @test isempty(fd)
 end
 
 @testset "query ($A, $B)" for (A, B) in gettypes()

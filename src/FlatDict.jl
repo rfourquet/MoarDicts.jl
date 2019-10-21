@@ -107,6 +107,13 @@ function setindex!(fd::FlatDict, val, key)
     _setindex!(fd, val, makekey(fd, key))
 end
 
+function empty!(fd::FlatDict)
+    empty!(fd.keys)
+    empty!(fd.vals)
+    empty!(fd.news)
+    fd
+end
+
 
 ## query
 
