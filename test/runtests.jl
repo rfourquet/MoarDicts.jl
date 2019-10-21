@@ -16,4 +16,8 @@ function _randtypes()
     A, B
 end
 
+# same as in julia/test/show.jl
+replstr(x, kv::Pair...) = sprint((io,x) -> show(IOContext(io, :limit => true, :displaysize => (24, 80), kv...), MIME("text/plain"), x), x)
+showstr(x, kv::Pair...) = sprint((io,x) -> show(IOContext(io, :limit => true, :displaysize => (24, 80), kv...), x), x)
+
 include("FlatDict.jl")

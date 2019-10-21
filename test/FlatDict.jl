@@ -78,3 +78,30 @@ end
         @test isequal(vec, P[a => b2])
     end
 end
+
+@testset "show" begin
+    fd = FlatDict{Int,Int}()
+    fd[1] = 2
+    if VERSION > v"1.4.0-"
+        @test showstr(fd) == "FlatDict(1 => 2)"
+        @test replstr(fd) == "FlatDict{Int64,Int64} with 1 entry:\n  1 => 2"
+    else
+        @test occursin("FlatDict", showstr(fd))
+        @test occursin("FlatDict", replstr(fd))
+    end
+
+    fd = FlatDict{UInt8,UInt8}()
+    fd[0x1] = 0x2
+    fd[0x3] = 0x4
+
+    if VERSION > v"1.4.0-"
+        @test showstr(fd) == "FlatDict{UInt8,UInt8}(0x01 => 0x02,0x03 => 0x04)"
+        @test replstr(fd) ==
+            "FlatDict{UInt8,UInt8} with 2 entries:\n" *
+            "  0x01 => 0x02\n" *
+            "  0x03 => 0x04"
+    else
+        @test occursin("FlatDict", showstr(fd))
+        @test occursin("FlatDict", replstr(fd))
+    end
+end
