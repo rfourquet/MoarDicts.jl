@@ -1,3 +1,8 @@
+## constants
+
+const MAX_NEWS_SEARCH = 16
+
+
 ## construction
 
 NewPair{K,V} = Union{Pair{K,Some{V}},
@@ -79,6 +84,11 @@ function resort!(fd::FlatDict)
     fd
 end
 
+function mayberesort!(fd::FlatDict)
+    length(fd.news) > MAX_NEWS_SEARCH && resort!(fd)
+    fd
+end
+
 # convert key0 to a valid key for flat dict
 function makekey(::FlatDict{K}, key0) where K
     key = convert(K, key0)
@@ -107,6 +117,7 @@ length(fd::FlatDict) = _length(resort!(fd))
 isempty(fd::FlatDict) = length(fd) == 0
 
 function get(fd::FlatDict, key, default)
+    mayberesort!(fd)
     idx = findlast(kv -> isequal(key, first(kv)), fd.news)
     if idx !== nothing
         val = last(fd.news[idx])
