@@ -25,6 +25,10 @@ end
         fd[x] = c
         @test isequal(fd[0], c)
         @test isequal(fd[x], c)
+
+        delete!(fd, 0)
+        @test 0 ∉ keys(fd)
+        @test !isempty(fd)
     end
     if B <: Number
         y = B(0)
@@ -45,6 +49,11 @@ end
         @test isequal(fd[k], b)
         @test_throws KeyError fd[i]
         @test_throws ArgumentError fd[i] = b
+
+        @test_throws ArgumentError delete!(fd, i)
+        delete!(fd, k)
+        @test k ∉ keys(fd)
+        @test !isempty(fd)
     end
     if B <: Base.IEEEFloat
         k = B(i)
@@ -57,6 +66,8 @@ end
     end
 
     @test !isempty(fd)
+    @test fd === delete!(fd, a)
+    @test a ∉ keys(fd)
     empty!(fd)
     @test isempty(fd)
 end

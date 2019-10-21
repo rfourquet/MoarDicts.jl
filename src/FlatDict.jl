@@ -107,6 +107,11 @@ function setindex!(fd::FlatDict, val, key)
     _setindex!(fd, val, makekey(fd, key))
 end
 
+function delete!(fd::FlatDict, key)
+    push!(fd.news, makekey(fd, key) => nothing)
+    fd
+end
+
 function empty!(fd::FlatDict)
     empty!(fd.keys)
     empty!(fd.vals)
