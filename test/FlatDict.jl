@@ -52,3 +52,29 @@ end
         end
     end
 end
+
+@testset "iterate" begin
+    A, B = _randtypes()
+    fd = FlatDict{A,B}()
+    P = eltype(fd)
+
+    @test collect(fd) == P[]
+
+    a, b = _rand.((A, B))
+    fd[a] = b
+
+    @test isequal(collect(fd), P[a => b])
+
+    a2, b2 = _rand.((A, B))
+    fd[a2] = b2
+
+    vec = collect(fd)
+    if isless(a, a2)
+        @test isequal(vec, P[a => b, a2 => b2])
+    elseif isless(a2, a)
+        @test isequal(vec, P[a2 => b2, a => b])
+    else
+        @test isequal(a, a2)
+        @test isequal(vec, P[a => b2])
+    end
+end

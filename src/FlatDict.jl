@@ -108,3 +108,11 @@ function get(fd::FlatDict, key, default)
             default
     end
 end
+
+## iterate
+
+function iterate(d::FlatDict, state=1)
+    resort!(d)
+    state > _length(d) && return nothing
+    d.keys[state] => d.vals[state], state+1
+end
