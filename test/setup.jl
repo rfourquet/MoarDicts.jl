@@ -61,6 +61,7 @@ end
 parse_test_args!()
 
 function gettypes()
+    unique!(TEST_ARGS.types)
     # we divide by 2 as random selection would take too long otherwise
     combos =
         if TEST_ARGS.ntypescombos >= _nvalidkeys(TEST_ARGS.types) * length(TEST_ARGS.types) ÷ 2
