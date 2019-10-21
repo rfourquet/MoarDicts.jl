@@ -1,10 +1,8 @@
-@testset "construction" begin
-    A, B = _randtypes()
+@testset "construction ($A, $B)" for (A, B) in gettypes()
     @test FlatDict{A,B}() isa FlatDict{A,B}
 end
 
-@testset "update" begin
-    A, B = rand(TYPES, 2)
+@testset "update ($A, $B)" for (A, B) in gettypes()
     fd = FlatDict{A,B}()
     a, b = _rand.((A, B))
     fd[a] = b
@@ -17,8 +15,7 @@ end
     end
 end
 
-@testset "query" begin
-    A, B = _randtypes()
+@testset "query ($A, $B)" for (A, B) in gettypes()
     fd = FlatDict{A,B}()
 
     @test length(fd) == 0
@@ -53,8 +50,7 @@ end
     end
 end
 
-@testset "iterate" begin
-    A, B = _randtypes()
+@testset "iterate ($A, $B)" for (A, B) in gettypes()
     fd = FlatDict{A,B}()
     P = eltype(fd)
 
