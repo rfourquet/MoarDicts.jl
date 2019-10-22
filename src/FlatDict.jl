@@ -128,14 +128,16 @@ end
 
 ## update
 
-function pushnews!(fd::FlatDict, key, val::Union{Nothing,Some})
+function pushnews!(fd::FlatDict{K,V}, key, val::Union{Nothing,Some}) where {K,V}
     length(fd.news) > max(MAX_NEWS_SIZE, 2*_length(fd)) && resort!(fd)
 
     key = makekey(fd, key)
     if val !== nothing
         val = Some(convert(valtype(fd), something(val)))
+        push!(fd.news, Pair{K,Some{V}}(key, val))
+    else
+        push!(fd.news, Pair{K,Nothing}(key, nothing))
     end
-    push!(fd.news, key => val)
     fd
 end
 

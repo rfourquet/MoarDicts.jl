@@ -318,6 +318,54 @@ end
     end
 end
 
+@testset "abstract types ($A, $B)" for (A, B) in gettypes()
+    fd = FlatDict{Any,Any}()
+    fd[0] = 0
+    @test fd[0] === 0
+
+    a, b = _rand.((A, B))
+
+    fd[a] = b
+    @test fd[a] === b
+    empty!(fd)
+
+    if A <: Number
+        fd[0] = 0
+        z = zero(A)
+
+        @test fd[0] === 0
+        @test fd[z] === 0
+        @test getkey(fd, 0, :def) === 0
+        @test getkey(fd, z, :def) === 0
+        @test get(fd, 0, :def) === 0
+        @test get(fd, z, :def) === 0
+
+        fd[z] = z
+
+        @test fd[0] === z
+        @test fd[z] === z
+        @test getkey(fd, 0, :def) === z
+        @test getkey(fd, z, :def) === z
+        @test get(fd, 0, :def) === z
+        @test get(fd, z, :def) === z
+
+        z = one(A)
+        fd[z] = z
+        @test fd[1] === z
+        @test fd[z] === z
+        @test getkey(fd, 1, :def) === z
+        @test getkey(fd, z, :def) === z
+        @test get(fd, 1, :def) === z
+        @test get(fd, z, :def) === z
+
+        @test fd === delete!(fd, z)
+        @test get(fd, z, :def) === :def
+        z = pop!(fd, 0)
+        @test iszero(z)
+        @test z isa A
+    end
+end
+
 @testset "iterate ($A, $B)" for (A, B) in gettypes()
     fd = FlatDict{A,B}()
     P = eltype(fd)
