@@ -97,7 +97,12 @@ function makekey(::FlatDict{K}, key0) where K
     key
 end
 
-@inline function mapping(fd::FlatDict, key)
+# errors must be deterministic, and not depend on whether binary search
+# occurs (where a non-comparable key, e.g. nothing, would lead to an error),
+# which depends on whether resort! has been called;
+# so mapping accepts only a key of the correct type, and makekey must be
+# called first by the caller, to error early and consistently
+@inline function mapping(fd::FlatDict{K}, key::K) where K
     mayberesort!(fd)
     idx = findlast(kv -> isequal(key, first(kv)), fd.news)
     @inbounds if idx !== nothing
@@ -147,6 +152,7 @@ function pop!(fd::FlatDict, key)
 end
 
 function pop!(fd::FlatDict, key, default)
+    key = makekey(fd, key)
     val = getval(fd, key)
     if val === nothing
         default
@@ -178,7 +184,7 @@ length(fd::FlatDict) = _length(resort!(fd))
 isempty(fd::FlatDict) = length(fd) == 0
 
 get(fd::FlatDict, key, default) =
-    something(getval(fd, key), Some(default))
+    something(getval(fd, makekey(fd, key)), Some(default))
 
 ## iterate
 

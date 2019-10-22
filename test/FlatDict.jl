@@ -47,16 +47,21 @@ end
         @test isequal(fd[a], y)
     end
     i = Int64(2)^60+1
-    if A <: Base.IEEEFloat
-        k = A(i)
+    if A <: Union{Base.IEEEFloat,Base.BitInteger32}
+        k = A <: AbstractFloat ? A(i) : typemax(A)
         @assert k != i
         @assert k isa A
         fd[k] = b
         @test isequal(fd[k], b)
-        @test_throws KeyError fd[i]
-        @test_throws ArgumentError fd[i] = b
 
-        @test_throws ArgumentError delete!(fd, i)
+        Err = A <: AbstractFloat ? ArgumentError : InexactError
+        @test_throws Err fd[i]
+        @test_throws Err fd[i] = b
+        @test_throws Err get(fd, i, :def)
+        @test_throws Err pop!(fd, i)
+        @test_throws Err pop!(fd, i, :def)
+        @test_throws Err delete!(fd, i)
+
         delete!(fd, k)
         @test k ∉ keys(fd)
         if !isequal(k, a)
@@ -178,6 +183,8 @@ end
             @test get(fd, c, nothing) === nothing
             @test get(fd, c, missing) === missing
             @test get(fd, c, Some(:def)) === Some(:def)
+
+            @test_throws KeyError fd[c]
 
             fd[c] = b
             @test get(fd, c, :def) === b
