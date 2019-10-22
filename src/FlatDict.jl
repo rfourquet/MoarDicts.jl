@@ -168,7 +168,7 @@ length(fd::FlatDict) = _length(resort!(fd))
 isempty(fd::FlatDict) = length(fd) == 0
 
 get(fd::FlatDict, key, default) =
-    something(getval(fd, key), default)
+    something(getval(fd, key), Some(default))
 
 ## iterate
 

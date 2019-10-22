@@ -150,6 +150,9 @@ end
             c = _rand(A)
             isequal(a, c) && continue
             @test get(fd, c, :def) === :def
+            @test get(fd, c, nothing) === nothing
+            @test get(fd, c, missing) === missing
+            @test get(fd, c, Some(:def)) === Some(:def)
 
             fd[c] = b
             @test get(fd, c, :def) === b
