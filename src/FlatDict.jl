@@ -127,13 +127,16 @@ end
 
 ## update
 
-_setindex!(fd::FlatDict{K}, val, key::K) where {K} =
-    push!(fd.news, key => Some(convert(valtype(fd), val)))
-
-function setindex!(fd::FlatDict, val, key)
-    _setindex!(fd, val, makekey(fd, key))
+function pushnews!(fd::FlatDict, key, val::Union{Nothing,Some})
+    key = makekey(fd, key)
+    if val !== nothing
+        val = Some(convert(valtype(fd), something(val)))
+    end
+    push!(fd.news, key => val)
     fd
 end
+
+setindex!(fd::FlatDict, val, key) = pushnews!(fd, key, Some(val))
 
 function pop!(fd::FlatDict)
     resort!(fd)
@@ -162,10 +165,7 @@ function pop!(fd::FlatDict, key, default)
     end
 end
 
-function delete!(fd::FlatDict, key)
-    push!(fd.news, makekey(fd, key) => nothing)
-    fd
-end
+delete!(fd::FlatDict, key) = pushnews!(fd, key, nothing)
 
 function empty!(fd::FlatDict)
     empty!(fd.keys)
