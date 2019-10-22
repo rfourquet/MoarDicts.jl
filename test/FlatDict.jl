@@ -59,6 +59,7 @@ end
         @test_throws Err fd[int] = b
         @test_throws Err get(fd, int, :def)
         @test_throws Err get(() -> :def, fd, int)
+        @test_throws Err getkey(fd, int, :def)
         @test_throws Err pop!(fd, int)
         @test_throws Err pop!(fd, int, :def)
         @test_throws Err delete!(fd, int)
@@ -249,7 +250,23 @@ end
     @test length(fd) == 0
     @test isempty(fd)
 
+    ref = Ref(false)
+    fun(val) = function ()
+        ref[] = true
+        val
+    end
+
     a, b = _rand.((A, B))
+
+    @test get(fd, a, :def) === :def
+    @test isempty(fd)
+    @test get(fun(:def), fd, a) === :def
+    @test ref[]
+    ref[] = false
+    @test isempty(fd)
+    @test getkey(fd, a, :def) === :def
+    @test isempty(fd)
+
     fd[a] = b
 
     @test get(fd, a, :def) === b
@@ -259,13 +276,12 @@ end
     @test get(fd, a, :def) === b
     @test length(fd) == 1
 
+    @test getkey(fd, a, :def) === a
+
     fd[a] = b # no-op
     @test length(fd) == 1
 
-    ref = Ref(false)
-    fun() = (ref[] = true; :def)
-
-    @test get(fun, fd, a) === b
+    @test get(fun(:def), fd, a) === b
     @test ref[] == false
 
     if !Base.issingletontype(A)
@@ -278,10 +294,12 @@ end
             @test get(fd, c, missing) === missing
             @test get(fd, c, Some(:def)) === Some(:def)
 
-            g = get(fun, fd, c)
+            g = get(fun(:def), fd, c)
             @test g === :def
             @test ref[] == true
             ref[] = false
+
+            @test getkey(fd, c, :def) === :def
 
             @test_throws KeyError fd[c]
 
@@ -290,8 +308,10 @@ end
             @test length(fd) == 2
             @test get(fd, c, :def) === b
 
-            @test get(fun, fd, c) === b
+            @test get(fun(:def), fd, c) === b
             @test ref[] == false
+
+            @test getkey(fd, c, :def) === c
 
             break
         end

@@ -208,6 +208,14 @@ function get(fun, fd::FlatDict, key)
         something(val)
 end
 
+function getkey(fd::FlatDict, key, default)
+    key = makekey(fd, key)
+    kv = mapping(fd, key)
+    kv === nothing ?
+        default :
+        first(kv)
+end
+
 
 ## iterate
 

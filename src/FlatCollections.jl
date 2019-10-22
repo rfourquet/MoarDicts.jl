@@ -1,6 +1,6 @@
 module FlatCollections
 
-import Base: delete!, empty!, get, get!, isempty, iterate, length, pop!, setindex!
+import Base: delete!, empty!, get, get!, getkey, isempty, iterate, length, pop!, setindex!
 
 if isdefined(Base, :limitrepr)
     using Base: limitrepr
