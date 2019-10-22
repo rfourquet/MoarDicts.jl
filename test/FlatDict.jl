@@ -5,6 +5,8 @@ end
 @testset "update ($A, $B)" for (A, B) in gettypes()
     fd = FlatDict{A,B}()
     a, b, c = _rand.((A, B, B))
+
+    # setindex!
     res = fd[a] = b
     @test res === b
 
@@ -65,10 +67,14 @@ end
         @test fd[a] === k
     end
 
+    # push!(fd, pairs...)
     @test push!(fd, a => b) === fd
     @test push!(fd, a => b, a => c) === fd
+
     elts = [_rand(A) => _rand(B) for _=1:rand(1:9)]
+
     @test push!(fd, elts...) === fd
+
     seen = Set{A}()
     for (k, v) in reverse(elts)
         k in seen && continue
@@ -82,10 +88,22 @@ end
         end
     end
 
+    # empty!
     @test !isempty(fd)
     @test fd === delete!(fd, a)
     @test a ∉ keys(fd)
     empty!(fd)
+    @test isempty(fd)
+
+    # pop!(fd)
+    push!(fd, elts...)
+    empty!(seen)
+    # can't use rev=true, as this doesn't reverse equal elements, by sort-stability
+    for (k, v) in reverse!(sort(elts, by=first))
+        k in seen && continue
+        push!(seen, k)
+        @test pop!(fd) === (k => v)
+    end
     @test isempty(fd)
 end
 
