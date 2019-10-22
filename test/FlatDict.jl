@@ -123,8 +123,7 @@ end
     push!(fd, elts...)
     empty!(seen)
 
-    # TODO: use something like shuffle!(unique!(reverse!(sort(...)), by=first))
-    for (k, v) in reverse!(sort(elts, by=first))
+    for (k, v) in shuffle!(unique!(first, reverse(elts)))
         k in seen && continue
         push!(seen, k)
         @test pop!(fd, k) === v
@@ -136,8 +135,7 @@ end
     push!(fd, elts...)
     empty!(seen)
 
-    # TODO: use shuffle!, see above
-    for (k, v) in reverse!(sort(elts, by=first))
+    for (k, v) in shuffle!(unique!(first, reverse(elts)))
         k in seen && continue
         push!(seen, k)
         if !Base.issingletontype(A) && A !== Bool
