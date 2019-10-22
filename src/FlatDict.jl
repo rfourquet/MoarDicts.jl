@@ -105,6 +105,7 @@ _setindex!(fd::FlatDict{K}, val, key::K) where {K} =
 
 function setindex!(fd::FlatDict, val, key)
     _setindex!(fd, val, makekey(fd, key))
+    fd
 end
 
 function delete!(fd::FlatDict, key)

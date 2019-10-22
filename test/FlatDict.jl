@@ -65,6 +65,23 @@ end
         @test fd[a] === k
     end
 
+    @test push!(fd, a => b) === fd
+    @test push!(fd, a => b, a => c) === fd
+    elts = [_rand(A) => _rand(B) for _=1:rand(1:9)]
+    @test push!(fd, elts...) === fd
+    seen = Set{A}()
+    for (k, v) in reverse(elts)
+        k in seen && continue
+        push!(seen, k)
+        if B !== Missing
+            @test (k => v) in fd
+            @test fd[k] === v
+        else
+            @test missing === ((k => v) in fd)
+            @test fd[k] === v === missing
+        end
+    end
+
     @test !isempty(fd)
     @test fd === delete!(fd, a)
     @test a ∉ keys(fd)
