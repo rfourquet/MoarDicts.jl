@@ -20,7 +20,7 @@ struct FlatDict{K,V} <: AbstractDict{K,V}
 end
 
 
-## internal: resort! & makekey & mapping
+## internal: resort! & makekey & mapping & getval
 
 function resort!(fd::FlatDict)
     keys, vals, news = fd.keys, fd.vals, fd.news
@@ -113,6 +113,12 @@ end
     end
 end
 
+function getval(fd::FlatDict, key)
+    kv = mapping(fd, key)
+    kv === nothing ?
+        nothing :
+        Some(last(kv))
+end
 
 ## update
 
@@ -127,6 +133,17 @@ end
 function pop!(fd::FlatDict)
     resort!(fd)
     pop!(fd.keys) => pop!(fd.vals)
+end
+
+function pop!(fd::FlatDict, key)
+    key = makekey(fd, key) # save some search when not a valid key
+    val = getval(fd, key)
+    if val === nothing
+        throw(KeyError(key))
+    else
+        delete!(fd, key)
+        something(val)
+    end
 end
 
 function delete!(fd::FlatDict, key)
@@ -150,12 +167,8 @@ length(fd::FlatDict) = _length(resort!(fd))
 
 isempty(fd::FlatDict) = length(fd) == 0
 
-function get(fd::FlatDict, key, default)
-    kv = mapping(fd, key)
-    kv === nothing ?
-        default :
-        last(kv)
-end
+get(fd::FlatDict, key, default) =
+    something(getval(fd, key), default)
 
 ## iterate
 

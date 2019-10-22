@@ -111,6 +111,19 @@ end
         @test pop!(fd) === (k => v)
     end
     @test isempty(fd)
+
+    # pop!(fd, key)
+    push!(fd, elts...)
+    empty!(seen)
+
+    # TODO: use something like shuffle!(unique!(reverse!(sort(...)), by=first))
+    for (k, v) in reverse!(sort(elts, by=first))
+        k in seen && continue
+        push!(seen, k)
+        @test pop!(fd, k) === v
+        @test_throws KeyError pop!(fd, k)
+    end
+    @test isempty(fd)
 end
 
 @testset "query ($A, $B)" for (A, B) in gettypes()
