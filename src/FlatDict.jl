@@ -1,6 +1,7 @@
 ## constants
 
 const MAX_NEWS_SEARCH = 16
+const MAX_NEWS_SIZE   = 1024
 
 
 ## construction
@@ -128,6 +129,8 @@ end
 ## update
 
 function pushnews!(fd::FlatDict, key, val::Union{Nothing,Some})
+    length(fd.news) > max(MAX_NEWS_SIZE, 2*_length(fd)) && resort!(fd)
+
     key = makekey(fd, key)
     if val !== nothing
         val = Some(convert(valtype(fd), something(val)))
