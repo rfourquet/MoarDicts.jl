@@ -12,4 +12,27 @@ include("FlatDict.jl")
 
 export FlatDict
 
+
+## runtests
+
+using Pkg
+
+const TEST_NCOMBOS_DEFAULT = 10
+const TEST_TYPES_DEFAULT = (Nothing, Missing, String, Symbol,
+                            Bool, Int8, UInt8, Int32, Int64, BigInt,
+                            Float32, Float64, BigFloat)
+
+function runtests(;
+                  ncombos::Integer=TEST_NCOMBOS_DEFAULT,
+                  types=TEST_TYPES_DEFAULT,
+                  special::Bool=true)
+
+    Pkg.test("FlatCollections",
+             test_args =
+             [ "ncombos=$ncombos",
+               "types=" * join(types, ','),
+               "special=$special",
+             ])
+end
+
 end # module

@@ -1,6 +1,6 @@
 using FlatCollections, Random, Test
 
-using FlatCollections: MAX_NEWS_SEARCH
+using FlatCollections: MAX_NEWS_SEARCH, TEST_NCOMBOS_DEFAULT, TEST_TYPES_DEFAULT
 
 _rand(::Type{T}) where {T} = rand(T)
 _rand(::Type{BigInt}) = rand(big.(typemin(Int128):typemax(Int128)))
@@ -25,11 +25,9 @@ mutable struct TestArgs
     types::Vector{DataType}
 end
 
-TestArgs() = TestArgs(10,
+TestArgs() = TestArgs(TEST_NCOMBOS_DEFAULT,
                       true,
-                      DataType[Nothing, Missing, String, Symbol,
-                               Bool, Int8, UInt8, Int32, Int64, BigInt,
-                               Float32, Float64, BigFloat])
+                      collect(TEST_TYPES_DEFAULT))
 
 const TEST_ARGS = TestArgs()
 
