@@ -77,7 +77,9 @@ end
     @test push!(fd, a => b) === fd
     @test push!(fd, a => b, a => c) === fd
 
-    elts = [_rand(A) => _rand(B) for _=1:rand(1:9)]
+    # using MAX_NEWS_SEARCH, in the hope that in some cases, the dictionary
+    # will be `resort!`ed, but not always, in order to test different code paths
+    elts = [_rand(A) => _rand(B) for _=1:rand(1:MAX_NEWS_SEARCH+8)]
 
     @test push!(fd, elts...) === fd
 
@@ -122,6 +124,29 @@ end
         push!(seen, k)
         @test pop!(fd, k) === v
         @test_throws KeyError pop!(fd, k)
+    end
+    @test isempty(fd)
+
+    # pop!(fd, key, default)
+    push!(fd, elts...)
+    empty!(seen)
+
+    # TODO: use shuffle!, see above
+    for (k, v) in reverse!(sort(elts, by=first))
+        k in seen && continue
+        push!(seen, k)
+        if !Base.issingletontype(A) && A !== Bool
+            local e
+            while true
+                e = _rand(A)
+                e ∉ keys(fd) && break
+            end
+            @test pop!(fd, e, :def) === :def
+            @test pop!(fd, e, Some(:def)) === Some(:def)
+            @test pop!(fd, e, nothing) === nothing
+            @test pop!(fd, e, Some(nothing)) === Some(nothing)
+        end
+        @test pop!(fd, k, :def) === v
     end
     @test isempty(fd)
 end

@@ -146,6 +146,16 @@ function pop!(fd::FlatDict, key)
     end
 end
 
+function pop!(fd::FlatDict, key, default)
+    val = getval(fd, key)
+    if val === nothing
+        default
+    else
+        delete!(fd, key)
+        something(val)
+    end
+end
+
 function delete!(fd::FlatDict, key)
     push!(fd.news, makekey(fd, key) => nothing)
     fd

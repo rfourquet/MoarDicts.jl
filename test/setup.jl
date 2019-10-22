@@ -1,5 +1,7 @@
 using FlatCollections, Random, Test
 
+using FlatCollections: MAX_NEWS_SEARCH
+
 _rand(::Type{T}) where {T} = rand(T)
 _rand(::Type{BigInt}) = rand(big.(typemin(Int128):typemax(Int128)))
 _rand(T::Type{<:Union{String,Symbol}}) = T(randstring())
