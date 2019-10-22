@@ -199,6 +199,14 @@ isempty(fd::FlatDict) = length(fd) == 0
 get(fd::FlatDict, key, default) =
     something(getval(fd, makekey(fd, key)), Some(default))
 
+function get(fun, fd::FlatDict, key)
+    val = getval(fd, makekey(fd, key))
+    val === nothing ?
+        fun() :
+        something(val)
+end
+
+
 ## iterate
 
 function iterate(d::FlatDict, state=1)
