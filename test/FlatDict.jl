@@ -46,21 +46,21 @@ end
         @test isequal(fd[a], 0)
         @test isequal(fd[a], y)
     end
-    i = Int64(2)^60+1
+    int = Int64(2)^60+1
     if A <: Union{Base.IEEEFloat,Base.BitInteger32}
-        k = A <: AbstractFloat ? A(i) : typemax(A)
-        @assert k != i
+        k = A <: AbstractFloat ? A(int) : typemax(A)
+        @assert k != int
         @assert k isa A
         fd[k] = b
         @test isequal(fd[k], b)
 
         Err = A <: AbstractFloat ? ArgumentError : InexactError
-        @test_throws Err fd[i]
-        @test_throws Err fd[i] = b
-        @test_throws Err get(fd, i, :def)
-        @test_throws Err pop!(fd, i)
-        @test_throws Err pop!(fd, i, :def)
-        @test_throws Err delete!(fd, i)
+        @test_throws Err fd[int]
+        @test_throws Err fd[int] = b
+        @test_throws Err get(fd, int, :def)
+        @test_throws Err pop!(fd, int)
+        @test_throws Err pop!(fd, int, :def)
+        @test_throws Err delete!(fd, int)
 
         delete!(fd, k)
         @test k ∉ keys(fd)
@@ -69,10 +69,10 @@ end
         end
     end
     if B <: Base.IEEEFloat
-        k = B(i)
-        @assert k != i
+        k = B(int)
+        @assert k != int
         @assert k isa B
-        fd[a] = i
+        fd[a] = int
         @test fd[a] === k
         fd[a] = k
         @test fd[a] === k
@@ -135,11 +135,11 @@ end
     push!(fd, elts...)
     empty!(seen)
 
+    local e
     for (k, v) in shuffle!(unique!(first, reverse(elts)))
         k in seen && continue
         push!(seen, k)
         if !Base.issingletontype(A) && A !== Bool
-            local e
             while true
                 e = _rand(A)
                 e ∉ keys(fd) && break
@@ -152,6 +152,46 @@ end
         @test pop!(fd, k, :def) === v
     end
     @test isempty(fd)
+
+    # get!(fd, key, default)
+    get!(fd, a, b) === b
+    @test fd[a] === b
+    @test length(fd) == 1
+    get!(fd, a, b) === b
+    @test fd[a] === b
+    @test length(fd) == 1
+
+    @test get!(fd, a, :def) === b
+    @test fd[a] === b
+
+    @test get!(fd, a, _rand(B)) === b
+    @test fd[a] === b
+
+    if !Base.issingletontype(A) && A !== Bool
+        while true
+            e = _rand(A)
+            e ∉ keys(fd) && break
+        end
+        if B !== Symbol
+            @test_throws MethodError get!(fd, e, :def)
+        end
+        if B <: Base.BitInteger32
+            @test_throws InexactError get!(fd, e, int)
+        end
+        if B <: Number
+            z = get!(fd, e, 0x0)
+            @test iszero(z)
+            @test z isa B
+            @test pop!(fd, e) === z
+            if B !== Bool
+                x = rand(1:typemax(Int8))
+                z = get!(fd, e, x)
+                @test z == x
+                @test z isa B
+                @test pop!(fd, e) === z
+            end
+        end
+    end
 end
 
 @testset "query ($A, $B)" for (A, B) in gettypes()

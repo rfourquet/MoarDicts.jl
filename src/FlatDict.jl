@@ -177,6 +177,16 @@ function empty!(fd::FlatDict)
     fd
 end
 
+function get!(fd::FlatDict, key, default)
+    key = makekey(fd, key)
+    val = getval(fd, key)
+    if val === nothing
+        pushnews!(fd, key, Some(default))
+        something(last(fd.news[end]))
+    else
+        something(val)
+    end
+end
 
 ## query
 
