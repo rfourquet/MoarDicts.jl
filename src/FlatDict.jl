@@ -20,7 +20,7 @@ struct FlatDict{K,V} <: AbstractDict{K,V}
 end
 
 
-## internal: resort! & makekey
+## internal: resort! & makekey & mapping
 
 function resort!(fd::FlatDict)
     keys, vals, news = fd.keys, fd.vals, fd.news
@@ -97,6 +97,22 @@ function makekey(::FlatDict{K}, key0) where K
     key
 end
 
+@inline function mapping(fd::FlatDict, key)
+    mayberesort!(fd)
+    idx = findlast(kv -> isequal(key, first(kv)), fd.news)
+    @inbounds if idx !== nothing
+        key, val = fd.news[idx]
+        val === nothing ?
+            nothing :
+            key => something(val)
+    else
+        idx = searchsortedfirst(fd.keys, key)
+        idx <= length(fd.keys) && isequal(fd.keys[idx], key) ?
+            fd.keys[idx] => fd.vals[idx] :
+            nothing
+    end
+end
+
 
 ## update
 
@@ -135,17 +151,10 @@ length(fd::FlatDict) = _length(resort!(fd))
 isempty(fd::FlatDict) = length(fd) == 0
 
 function get(fd::FlatDict, key, default)
-    mayberesort!(fd)
-    idx = findlast(kv -> isequal(key, first(kv)), fd.news)
-    if idx !== nothing
-        val = last(fd.news[idx])
-        val === nothing ? default : something(val)
-    else
-        idx = searchsortedfirst(fd.keys, key)
-        idx <= length(fd.keys) && isequal(fd.keys[idx], key) ?
-            fd.vals[idx] :
-            default
-    end
+    kv = mapping(fd, key)
+    kv === nothing ?
+        default :
+        last(kv)
 end
 
 ## iterate
