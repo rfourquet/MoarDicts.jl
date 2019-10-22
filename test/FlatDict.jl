@@ -30,7 +30,11 @@ end
 
         delete!(fd, 0)
         @test 0 ∉ keys(fd)
-        @test !isempty(fd)
+        if !isequal(0, a)
+            @test !isempty(fd)
+        else
+            @test isempty(fd)
+        end
     end
     if B <: Number
         y = B(0)
@@ -55,7 +59,9 @@ end
         @test_throws ArgumentError delete!(fd, i)
         delete!(fd, k)
         @test k ∉ keys(fd)
-        @test !isempty(fd)
+        if !isequal(k, a)
+            @test !isempty(fd)
+        end
     end
     if B <: Base.IEEEFloat
         k = B(i)
