@@ -23,10 +23,11 @@ mutable struct TestArgs
     types::Vector{DataType}
 end
 
-TestArgs() = TestArgs(9,
+TestArgs() = TestArgs(10,
                       true,
-                      DataType[Nothing, Missing, Int32, Int64, BigInt,
-                               Float32, Float64, BigFloat, String, Symbol])
+                      DataType[Nothing, Missing, String, Symbol,
+                               Bool, Int8, UInt8, Int32, Int64, BigInt,
+                               Float32, Float64, BigFloat])
 
 const TEST_ARGS = TestArgs()
 
@@ -61,34 +62,42 @@ end
 parse_test_args!()
 
 function gettypes()
-    unique!(TEST_ARGS.types)
+    ntypescombos, types = TEST_ARGS.ntypescombos, TEST_ARGS.types
+    unique!(types)
     # we divide by 2 as random selection would take too long otherwise
     combos =
-        if TEST_ARGS.ntypescombos >= _nvalidkeys(TEST_ARGS.types) * length(TEST_ARGS.types) ÷ 2
-            [(A, B) for A in TEST_ARGS.types if _isvalidkey(A)
-                    for B in TEST_ARGS.types]
+        if ntypescombos >= _nvalidkeys(types) * length(types) ÷ 2
+            [(A, B) for A in types if _isvalidkey(A)
+                    for B in types]
         else
             AB = Set{Tuple{DataType,DataType}}()
-            nonnothing = setdiff(TEST_ARGS.types, [Nothing])
-            floats = intersect(TEST_ARGS.types, Base.uniontypes(Base.IEEEFloat))
+            nonnothing = setdiff(types, [Nothing])
+            floats = intersect(types, Base.uniontypes(Base.IEEEFloat))
             if TEST_ARGS.special && !isempty(nonnothing)
-                if Missing in TEST_ARGS.types
-                    push!(AB, (Missing, rand(nonnothing)))
+                if Missing in types
+                    push!(AB, (Missing, rand(types)))
                     push!(AB, (rand(nonnothing), Missing))
                 end
-                if Nothing in TEST_ARGS.types
+                if Nothing in types
                     push!(AB, (rand(nonnothing), Nothing))
                 end
+                if Bool in types
+                    push!(AB, (Bool, rand(types)))
+                end
                 if !isempty(floats)
-                    push!(AB, (rand(floats), rand(TEST_ARGS.types)))
+                    push!(AB, (rand(floats), rand(types)))
                     push!(AB, (rand(nonnothing), rand(floats)))
                 end
+                smalls = intersect!([Int8, UInt8], types)
+                if length(AB) + 3 < ntypescombos && !isempty(smalls)
+                    push!(AB, (rand(smalls), rand(types)))
+                end
             end
-            while length(AB) > TEST_ARGS.ntypescombos
+            while length(AB) > ntypescombos
                 pop!(AB, rand(AB))
             end
-            while length(AB) < TEST_ARGS.ntypescombos
-                push!(AB, _randtypes(TEST_ARGS.types))
+            while length(AB) < ntypescombos
+                push!(AB, _randtypes(types))
             end
             collect(AB)
         end
