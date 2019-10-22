@@ -154,18 +154,43 @@ end
     end
     @test isempty(fd)
 
-    # get!(fd, key, default)
+    # get!(fd, key, default) / get!(fun, fd, key)
+    ref = Ref(false)
+    fun(val) = function ()
+        ref[] = true
+        val
+    end
+
     get!(fd, a, b) === b
     @test fd[a] === b
     @test length(fd) == 1
     get!(fd, a, b) === b
+    @test fd[a] === b
+    @test length(fd) == 1
+
+    empty!(fd)
+    get!(fun(b), fd, a) === b
+    @test ref[]
+    @test fd[a] === b
+    @test length(fd) == 1
+    ref[] = false
+    get!(fun(b), fd, a) === b
+    @test !ref[]
     @test fd[a] === b
     @test length(fd) == 1
 
     @test get!(fd, a, :def) === b
     @test fd[a] === b
 
+    @test get!(fun(:def), fd, a) === b
+    @test !ref[]
+    @test fd[a] === b
+
     @test get!(fd, a, _rand(B)) === b
+    @test fd[a] === b
+
+    @test get!(fun(_rand(B)),  fd, a) === b
+    @test !ref[]
     @test fd[a] === b
 
     if !Base.issingletontype(A) && A !== Bool
@@ -175,9 +200,15 @@ end
         end
         if B !== Symbol
             @test_throws MethodError get!(fd, e, :def)
+            @test_throws MethodError get!(fun(:def), fd, e)
+            @test ref[]
+            ref[] = false
         end
         if B <: Base.BitInteger32
             @test_throws InexactError get!(fd, e, int)
+            @test_throws InexactError get!(fun(int), fd, e)
+            @test ref[]
+            ref[] = false
         end
         if B <: Number
             z = get!(fd, e, 0x0)
@@ -187,6 +218,23 @@ end
             if B !== Bool
                 x = rand(1:typemax(Int8))
                 z = get!(fd, e, x)
+                @test z == x
+                @test z isa B
+                @test pop!(fd, e) === z
+            end
+
+            @test !haskey(fd, e)
+            z = get!(fun(0x0), fd, e)
+            @test ref[]
+            ref[] = false
+            @test iszero(z)
+            @test z isa B
+            @test pop!(fd, e) === z
+            if B !== Bool
+                x = rand(1:typemax(Int8))
+                z = get!(fun(x), fd, e)
+                @test ref[]
+                ref[] = false
                 @test z == x
                 @test z isa B
                 @test pop!(fd, e) === z
