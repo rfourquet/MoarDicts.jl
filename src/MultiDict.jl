@@ -34,5 +34,42 @@ mutable struct MultiDict{K,V} <: AbstractDict{K,V}
     end
 end
 
+@propagate_inbounds isslotempty(h::MultiDict, i::Int) = h.slots[i] == 0x0
+@propagate_inbounds isslotfilled(h::MultiDict, i::Int) = h.slots[i] == 0x1
+@propagate_inbounds isslotmissing(h::MultiDict, i::Int) = h.slots[i] == 0x2
+
+#!=
+function skip_deleted(h::MultiDict, i)
+    L = length(h.slots)
+    for i = i:L
+        @inbounds if isslotfilled(h,i)
+            return  i
+        end
+    end
+    return 0
+end
+
+#!=
+function skip_deleted_floor!(h::MultiDict)
+    idx = skip_deleted(h, h.idxfloor)
+    if idx != 0
+        h.idxfloor = idx
+    end
+    idx
+end
+
+#!=
+@propagate_inbounds _iterate(t::MultiDict{K,V}, i) where {K,V} =
+    i == 0 ? nothing :
+    (Pair{K,V}(t.keys[i],t.vals[i]), i == typemax(Int) ? 0 : i+1)
+
+#!=
+@propagate_inbounds function iterate(t::MultiDict)
+    _iterate(t, skip_deleted_floor!(t))
+end
+
+#!=
+@propagate_inbounds iterate(t::MultiDict, i) = _iterate(t, skip_deleted(t, i))
+
 isempty(t::MultiDict) = (t.count == 0)
 length(t::MultiDict) = t.count

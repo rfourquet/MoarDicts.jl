@@ -4,3 +4,10 @@
     @test isempty(md)
     @test length(md) == 0
 end
+
+@testset "MultiDict iterate ($A, $B)" for (A, B) in gettypes()
+    md = MultiDict{A,B}()
+    P = eltype(md)
+
+    @test collect(md) == P[]
+end
