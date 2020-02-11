@@ -1,8 +1,9 @@
 using Base: hashindex, limitrepr, _unsetindex!, @propagate_inbounds,
     maxprobeshift, maxprobeshift, maxallowedprobe, _tablesz, KeySet,
-    ValueIterator
+    ValueIterator, dict_with_eltype, isiterable, promote_typejoin
 
-import Base: length, isempty, setindex!, iterate, push!, merge!
+import Base: length, isempty, setindex!, iterate, push!, merge!, grow_to!,
+    empty
 
 # + lines ending with a #!! comment are those modified within a function
 # otherwise copy-pasted from Base/dict.jl (besides the renaming to MultiDict)
@@ -54,6 +55,49 @@ function MultiDict{K,V}(ps::Pair...) where V where K
     end
     return h
 end
+
+#!=
+function MultiDict(kv)
+    try
+        dict_with_eltype((K, V) -> MultiDict{K, V}, kv, eltype(kv))
+    catch
+        if !isiterable(typeof(kv)) || !all(x->isa(x,Union{Tuple,Pair}),kv)
+            throw(ArgumentError("MultiDict(kv): kv needs to be an iterator of tuples or pairs"))
+        else
+            rethrow()
+        end
+    end
+end
+
+function grow_to!(dest::MultiDict{K, V}, itr) where V where K
+    y = iterate(itr)
+    y === nothing && return dest
+    ((k,v), st) = y
+    dest2 = empty(dest, typeof(k), typeof(v))
+    push!(dest2, k => v) #!!
+    grow_to!(dest2, itr, st)
+end
+
+# this is a special case due to (1) allowing both Pairs and Tuples as elements,
+# and (2) Pair being invariant. a bit annoying.
+function grow_to!(dest::MultiDict{K,V}, itr, st) where V where K
+    y = iterate(itr, st)
+    while y !== nothing
+        (k,v), st = y
+        if isa(k,K) && isa(v,V)
+            push!(dest, k => v) #!!
+        else
+            new = empty(dest, promote_typejoin(K,typeof(k)), promote_typejoin(V,typeof(v)))
+            merge!(new, dest)
+            push!(new, k => v) #!!
+            return grow_to!(new, itr, st)
+        end
+        y = iterate(itr, st)
+    end
+    return dest
+end
+
+empty(d::MultiDict, ::Type{K}, ::Type{V}) where {K, V} = MultiDict{K,V}()
 
 @propagate_inbounds isslotempty(h::MultiDict, i::Int) = h.slots[i] == 0x0
 @propagate_inbounds isslotfilled(h::MultiDict, i::Int) = h.slots[i] == 0x1

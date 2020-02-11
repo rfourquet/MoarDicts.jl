@@ -1,4 +1,4 @@
-@testset "MultiDict construction ($A, $B)" for (A, B) in gettypes()
+@testset "MultiDict construction ($A, $B)" for (i, (A, B)) in enumerate(gettypes())
     md = MultiDict{A,B}()
     @test md isa MultiDict{A,B}
     @test isempty(md)
@@ -13,6 +13,15 @@
     @test length(md) == 1
     md = MultiDict{A,B}(_rand(A) => _rand(B), _rand(A) => _rand(B))
     @test length(md) == 2
+
+    md = MultiDict(_rand(A) => _rand(B) for _=1:3)
+    @test length(md) == 3
+
+    if i == 1
+        md = MultiDict((1 => 2, 0x1 => 0x2))
+        @test md isa MultiDict{Integer,Integer}
+        @test length(md) == 2
+    end
 end
 
 @testset "MultiDict iterate ($A, $B)" for (A, B) in gettypes()
