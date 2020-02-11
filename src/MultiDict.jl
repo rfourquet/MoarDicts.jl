@@ -35,9 +35,22 @@ mutable struct MultiDict{K,V} <: AbstractDict{K,V}
 end
 
 function MultiDict{K,V}(kv) where V where K
-    h = MultiDict{K,V}()
+    h = MultiDict{K,V}() #!!
     for (k,v) in kv
         push!(h, k => v) #!!
+    end
+    return h
+end
+
+#!!
+MultiDict{K,V}(p::Pair) where {K,V} =
+    push!(MultiDict{K,V}(), p)
+
+function MultiDict{K,V}(ps::Pair...) where V where K
+    h = MultiDict{K,V}() #!!
+    sizehint!(h, length(ps))
+    for p in ps
+        push!(h, p) #!!
     end
     return h
 end
@@ -102,6 +115,21 @@ function rehash!(h::MultiDict{K,V}, newsz = length(h.keys)) where V where K
     @assert h.age == age0
 
     return h
+end
+
+#!=
+function sizehint!(d::MultiDict{T}, newsz) where T
+    oldsz = length(d.slots)
+    if newsz <= oldsz
+        # todo: shrink
+        # be careful: rehash!() assumes everything fits. it was only designed
+        # for growing.
+        return d
+    end
+    # grow at least 25%
+    newsz = min(max(newsz, (oldsz*5)>>2),
+                max_values(T))
+    rehash!(d, newsz)
 end
 
 #!=

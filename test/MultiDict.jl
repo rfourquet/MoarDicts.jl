@@ -8,6 +8,11 @@
         md = MultiDict{A,B}(_rand(A) => _rand(B) for _ = 1:c)
         @test length(md) == c
     end
+
+    md = MultiDict{A,B}(_rand(A) => _rand(B))
+    @test length(md) == 1
+    md = MultiDict{A,B}(_rand(A) => _rand(B), _rand(A) => _rand(B))
+    @test length(md) == 2
 end
 
 @testset "MultiDict iterate ($A, $B)" for (A, B) in gettypes()
