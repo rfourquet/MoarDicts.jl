@@ -3,6 +3,8 @@
     @test md isa MultiDict{A,B}
     @test isempty(md)
     @test length(md) == 0
+    @test eltype(md) == Pair{A,B}
+    @test eltype(MultiDict{A,B}) == Pair{A,B}
 
     let c = rand(1:9)
         md = MultiDict{A,B}(_rand(A) => _rand(B) for _ = 1:c)
@@ -130,6 +132,9 @@ end
             "MultiDict{UInt8,UInt8} with 2 entries:\n" *
             "  0x03 => 0x04\n" *
             "  0x01 => 0x02"
+
+        md = MultiDict{Integer,Integer}(1=>2)
+        @test showstr(md) == "MultiDict{Integer,Integer}(1 => 2)"
     else
         @test occursin("MultiDict", showstr(md))
         @test occursin("MultiDict", replstr(md))

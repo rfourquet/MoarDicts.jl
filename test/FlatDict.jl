@@ -1,5 +1,6 @@
 @testset "construction ($A, $B)" for (A, B) in gettypes()
     @test FlatDict{A,B}() isa FlatDict{A,B}
+    @test eltype(FlatDict{A,B}) == Pair{A,B}
 end
 
 @testset "update ($A, $B)" for (A, B) in gettypes()

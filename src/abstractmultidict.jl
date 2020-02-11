@@ -1,4 +1,5 @@
-import Base: show, summary, typeinfo_prefix, typeinfo_implicit, typeinfo_eltype, keytype, valtype
+import Base: show, summary, typeinfo_prefix, typeinfo_implicit, typeinfo_eltype, keytype, valtype,
+    eltype
 using Base: show_circular, _truncate_at_width_or_chars, showarg
 
 abstract type AbstractMultiDict{K,V} end
@@ -34,6 +35,21 @@ keytype(::Type{<:AbstractMultiDict{K,V}}) where {K,V} = K
 keytype(a::AbstractMultiDict) = keytype(typeof(a))
 valtype(::Type{<:AbstractMultiDict{K,V}}) where {K,V} = V
 valtype(a::AbstractMultiDict) = valtype(typeof(a))
+
+#!=
+function eltype(::Type{<:AbstractMultiDict{K,V}}) where {K,V}
+    if @isdefined(K)
+        if @isdefined(V)
+            return Pair{K,V}
+        else
+            return Pair{K}
+        end
+    elseif @isdefined(V)
+        return Pair{k,V} where k
+    else
+        return Pair
+    end
+end
 
 #!=
 function summary(io::IO, t::AbstractMultiDict)
