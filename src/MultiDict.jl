@@ -39,6 +39,126 @@ end
 @propagate_inbounds isslotmissing(h::MultiDict, i::Int) = h.slots[i] == 0x2
 
 #!=
+function rehash!(h::MultiDict{K,V}, newsz = length(h.keys)) where V where K
+    olds = h.slots
+    oldk = h.keys
+    oldv = h.vals
+    sz = length(olds)
+    newsz = _tablesz(newsz)
+    h.age += 1
+    h.idxfloor = 1
+    if h.count == 0
+        resize!(h.slots, newsz)
+        fill!(h.slots, 0)
+        resize!(h.keys, newsz)
+        resize!(h.vals, newsz)
+        h.ndel = 0
+        return h
+    end
+
+    slots = zeros(UInt8,newsz)
+    keys = Vector{K}(undef, newsz)
+    vals = Vector{V}(undef, newsz)
+    age0 = h.age
+    count = 0
+    maxprobe = 0
+
+    for i = 1:sz
+        @inbounds if olds[i] == 0x1
+            k = oldk[i]
+            v = oldv[i]
+            index0 = index = hashindex(k, newsz)
+            while slots[index] != 0
+                index = (index & (newsz-1)) + 1
+            end
+            probe = (index - index0) & (newsz-1)
+            probe > maxprobe && (maxprobe = probe)
+            slots[index] = 0x1
+            keys[index] = k
+            vals[index] = v
+            count += 1
+
+            if h.age != age0
+                # if `h` is changed by a finalizer, retry
+                return rehash!(h, newsz)
+            end
+        end
+    end
+
+    h.slots = slots
+    h.keys = keys
+    h.vals = vals
+    h.count = count
+    h.ndel = 0
+    h.maxprobe = maxprobe
+    @assert h.age == age0
+
+    return h
+end
+
+#!! new method
+# get the index where a key would be inserted
+function ht_keyindex_push!(h::MultiDict{K,V}, key) where V where K
+    sz = length(h.keys)
+    iter = 0
+    index = hashindex(key, sz)
+
+    maxallowed = max(maxallowedprobe, sz>>maxprobeshift)
+    @inbounds while iter <= maxallowed
+        if !isslotfilled(h, index)
+            if iter > h.maxprobe
+                h.maxprobe = iter
+            end
+            return index
+        end
+        index = (index & (sz-1)) + 1
+        iter += 1
+    end
+
+    rehash!(h, h.count > 64000 ? sz*2 : sz*4)
+
+    return ht_keyindex_push!(h, key)
+end
+
+#!=
+@propagate_inbounds function _setindex!(h::MultiDict, v, key, index)
+    h.slots[index] = 0x1
+    h.keys[index] = key
+    h.vals[index] = v
+    h.count += 1
+    h.age += 1
+    if index < h.idxfloor
+        h.idxfloor = index
+    end
+
+    sz = length(h.keys)
+    # Rehash now if necessary
+    if h.ndel >= ((3*sz)>>2) || h.count*3 > sz*2
+        # > 3/4 deleted or > 2/3 full
+        rehash!(h, h.count > 64000 ? h.count*2 : h.count*4)
+    end
+end
+
+#!! new method
+function push!(h::MultiDict{K}, p::Pair) where K
+    key0, v0 = p
+    key = convert(K, key0)
+    if !isequal(key, key0)
+        throw(ArgumentError("$(limitrepr(key0)) is not a valid key for type $K"))
+    end
+    _push!(h, v0, key)
+end
+
+#!! new method
+function _push!(h::MultiDict{K,V}, v0, key::K) where {K,V}
+    v = convert(V, v0)
+    index = ht_keyindex_push!(h, key)
+    @inbounds _setindex!(h, v, key, index)
+
+    h
+end
+
+#!=
 function skip_deleted(h::MultiDict, i)
     L = length(h.slots)
     for i = i:L
