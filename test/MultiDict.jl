@@ -15,12 +15,27 @@
     @test length(md) == 2
 
     md = MultiDict(_rand(A) => _rand(B) for _=1:3)
+    @test md isa MultiDict{A,B}
     @test length(md) == 3
 
-    if i == 1
+    md = MultiDict(_rand(A) => _rand(B), _rand(A) => _rand(B))
+    @test md isa MultiDict{A,B}
+    @test length(md) == 2
+
+    if i == 1 # TODO: test more types
         md = MultiDict((1 => 2, 0x1 => 0x2))
         @test md isa MultiDict{Integer,Integer}
         @test length(md) == 2
+
+        md = MultiDict(1 => 2, 0x1 => 0x2)
+        @test md isa MultiDict{Integer,Integer}
+        @test length(md) == 2
+    end
+    if i == 1
+        for md = (MultiDict(), MultiDict(()))
+            @test md isa MultiDict{Any,Any}
+            @test isempty(md)
+        end
     end
 end
 

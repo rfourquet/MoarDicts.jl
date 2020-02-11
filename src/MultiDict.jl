@@ -56,6 +56,12 @@ function MultiDict{K,V}(ps::Pair...) where V where K
     return h
 end
 
+MultiDict() = MultiDict{Any,Any}()
+MultiDict(kv::Tuple{}) = MultiDict()
+
+MultiDict(ps::Pair{K,V}...) where {K,V} = MultiDict{K,V}(ps)
+MultiDict(ps::Pair...)                  = MultiDict(ps)
+
 #!=
 function MultiDict(kv)
     try
