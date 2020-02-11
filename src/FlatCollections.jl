@@ -9,6 +9,7 @@ else
 end
 
 include("FlatDict.jl")
+include("abstractmultidict.jl")
 include("MultiDict.jl")
 
 export FlatDict, MultiDict

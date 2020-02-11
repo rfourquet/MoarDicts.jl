@@ -108,3 +108,30 @@ end
         @test get(md, a2, :def) === :def
     end
 end
+
+@testset "show" begin
+    md = MultiDict{Int,Int}()
+    push!(md, 1 => 2)
+    if VERSION > v"1.4.0-"
+        @test showstr(md) == "MultiDict(1 => 2)"
+        @test replstr(md) == "MultiDict{Int64,Int64} with 1 entry:\n  1 => 2"
+    else
+        @test occursin("MultiDict", showstr(md))
+        @test occursin("MultiDict", replstr(md))
+    end
+
+    md = MultiDict{UInt8,UInt8}()
+    push!(md, 0x1 => 0x2)
+    push!(md, 0x3 => 0x4)
+
+    if VERSION > v"1.4.0-"
+        @test showstr(md) == "MultiDict{UInt8,UInt8}(0x03 => 0x04,0x01 => 0x02)"
+        @test replstr(md) ==
+            "MultiDict{UInt8,UInt8} with 2 entries:\n" *
+            "  0x03 => 0x04\n" *
+            "  0x01 => 0x02"
+    else
+        @test occursin("MultiDict", showstr(md))
+        @test occursin("MultiDict", replstr(md))
+    end
+end

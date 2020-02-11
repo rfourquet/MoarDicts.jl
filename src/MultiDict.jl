@@ -12,7 +12,7 @@ import Base: length, isempty, setindex!, iterate, push!, merge!, grow_to!,
 #   modified
 
 # temporarily inherits from AbstractDict for convenience (e.g. for printing)
-mutable struct MultiDict{K,V} <: AbstractDict{K,V}
+mutable struct MultiDict{K,V} <: AbstractMultiDict{K,V}
     slots::Array{UInt8,1}
     keys::Array{K,1}
     vals::Array{V,1}
