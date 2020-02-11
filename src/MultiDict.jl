@@ -197,6 +197,30 @@ function empty!(h::MultiDict{K,V}) where V where K
     return h
 end
 
+#!=
+# get the *first* index where a key is stored, or -1 if not present #!!
+function ht_keyindex(h::MultiDict{K,V}, key) where V where K
+    sz = length(h.keys)
+    iter = 0
+    maxprobe = h.maxprobe
+    index = hashindex(key, sz)
+    keys = h.keys
+
+    @inbounds while true
+        if isslotempty(h,index)
+            break
+        end
+        if !isslotmissing(h,index) && (key === keys[index] || isequal(key,keys[index]))
+            return index
+        end
+
+        index = (index & (sz-1)) + 1
+        iter += 1
+        iter > maxprobe && break
+    end
+    return -1
+end
+
 #!! new method
 # get the index where a key would be inserted
 function ht_keyindex_push!(h::MultiDict{K,V}, key) where V where K
@@ -257,6 +281,12 @@ function _push!(h::MultiDict{K,V}, v0, key::K) where {K,V}
     @inbounds _setindex!(h, v, key, index)
 
     h
+end
+
+#!=
+function get(h::MultiDict{K,V}, key, default) where V where K
+    index = ht_keyindex(h, key)
+    @inbounds return (index < 0) ? default : h.vals[index]::V
 end
 
 #!=

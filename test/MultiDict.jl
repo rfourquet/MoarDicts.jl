@@ -84,3 +84,27 @@ end
         end
     end
 end
+
+@testset "MultiDict query ($A, $B)" for (A, B) in gettypes()
+    md = MultiDict{A,B}()
+
+    a, a2, b, c = _rand.((A, A, B, B))
+
+    @test get(md, a, :def) === :def
+    @test isempty(md)
+
+    push!(md, a => b)
+
+    @test get(md, a, :def) === b
+    @test !isempty(md)
+    @test length(md) == 1
+    @test get(md, a, :def) === b
+
+    push!(md, a => c)
+    # can't use get(...) ∈ (b, c) when missing is involved
+    @test any(isequal(get(md, a, :def)), (b, c))
+
+    if !isequal(a, a2)
+        @test get(md, a2, :def) === :def
+    end
+end
