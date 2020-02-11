@@ -43,4 +43,20 @@ end
         empty!(md)
         @test isempty(md)
     end
+
+    ## merge!
+    let (a, b) = _rand(A) => _rand(B)
+        (c, d) = _rand(A) => _rand(B)
+        for dd = (Dict(c => d), MultiDict{A,B}(c => d))
+            md = MultiDict{A,B}(a => b)
+            md2 = merge!(md, Dict(c => d))
+            @test md2 === md
+            r = collect(md)
+            @test length(md) == 2
+            if A !== Missing && B !== Missing
+                @test (a => b) in r
+                @test (c => d) in r
+            end
+        end
+    end
 end

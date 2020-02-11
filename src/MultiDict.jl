@@ -2,7 +2,7 @@ using Base: hashindex, limitrepr, _unsetindex!, @propagate_inbounds,
     maxprobeshift, maxprobeshift, maxallowedprobe, _tablesz, KeySet,
     ValueIterator
 
-import Base: length, isempty, setindex!, iterate, push!
+import Base: length, isempty, setindex!, iterate, push!, merge!
 
 # + lines ending with a #!! comment are those modified within a function
 # otherwise copy-pasted from Base/dict.jl (besides the renaming to MultiDict)
@@ -244,3 +244,15 @@ end
 
 isempty(t::MultiDict) = (t.count == 0)
 length(t::MultiDict) = t.count
+
+### from base/abstractdict.jl
+
+#!!
+function merge!(d::MultiDict, others::Union{AbstractDict,MultiDict}...)
+    for other in others
+        for p in other
+            push!(d, p)
+        end
+    end
+    return d
+end
