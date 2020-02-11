@@ -96,6 +96,21 @@ function rehash!(h::MultiDict{K,V}, newsz = length(h.keys)) where V where K
     return h
 end
 
+#!=
+function empty!(h::MultiDict{K,V}) where V where K
+    fill!(h.slots, 0x0)
+    sz = length(h.slots)
+    empty!(h.keys)
+    empty!(h.vals)
+    resize!(h.keys, sz)
+    resize!(h.vals, sz)
+    h.ndel = 0
+    h.count = 0
+    h.age += 1
+    h.idxfloor = 1
+    return h
+end
+
 #!! new method
 # get the index where a key would be inserted
 function ht_keyindex_push!(h::MultiDict{K,V}, key) where V where K

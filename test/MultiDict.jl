@@ -28,5 +28,9 @@ end
             push!(md, 0 => 0)
         end
         @test length(md) == 100
+
+        @test !isempty(md)
+        empty!(md)
+        @test isempty(md)
     end
 end
