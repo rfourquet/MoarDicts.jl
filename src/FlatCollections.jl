@@ -9,8 +9,9 @@ else
 end
 
 include("FlatDict.jl")
+include("MultiDict.jl")
 
-export FlatDict
+export FlatDict, MultiDict
 
 
 ## runtests
