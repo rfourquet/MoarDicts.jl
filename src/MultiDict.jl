@@ -34,6 +34,14 @@ mutable struct MultiDict{K,V} <: AbstractDict{K,V}
     end
 end
 
+function MultiDict{K,V}(kv) where V where K
+    h = MultiDict{K,V}()
+    for (k,v) in kv
+        push!(h, k => v) #!!
+    end
+    return h
+end
+
 @propagate_inbounds isslotempty(h::MultiDict, i::Int) = h.slots[i] == 0x0
 @propagate_inbounds isslotfilled(h::MultiDict, i::Int) = h.slots[i] == 0x1
 @propagate_inbounds isslotmissing(h::MultiDict, i::Int) = h.slots[i] == 0x2

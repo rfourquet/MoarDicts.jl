@@ -3,6 +3,11 @@
     @test md isa MultiDict{A,B}
     @test isempty(md)
     @test length(md) == 0
+
+    let c = rand(1:9)
+        md = MultiDict{A,B}(_rand(A) => _rand(B) for _ = 1:c)
+        @test length(md) == c
+    end
 end
 
 @testset "MultiDict iterate ($A, $B)" for (A, B) in gettypes()
