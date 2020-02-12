@@ -7,6 +7,20 @@ abstract type AbstractMultiSet{K} end
 
 eltype(::Type{<:AbstractMultiSet{K}}) where {K} = K
 
+# iterates values for 1 given key
+struct ValueIterator1{T<:AbstractMultiDict,K}
+    dict::T
+    key::K
+end
+
+Base.IteratorSize(::Type{<:ValueIterator1}) = Base.SizeUnknown()
+
+eltype(::Type{<:ValueIterator1{T}}) where {T} = valtype(T)
+
+show(io::IO, iter::ValueIterator1) =
+    # set :limit to false as length(iter) is not defined
+    show_vector(IOContext(io, :limit => false), iter, '{', '}')
+
 ## from base/dict.jl
 
 #!=

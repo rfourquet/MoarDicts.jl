@@ -3,7 +3,7 @@ using Base: hashindex, limitrepr, _unsetindex!, @propagate_inbounds,
     dict_with_eltype, isiterable, promote_typejoin
 
 import Base: length, isempty, setindex!, iterate, push!, merge!, grow_to!,
-    empty
+    empty, getindex
 
 # + lines ending with a #!! comment are those modified within a function
 # otherwise copy-pasted from Base/dict.jl (besides the renaming to MultiDict)
@@ -197,14 +197,14 @@ function empty!(h::MultiDict{K,V}) where V where K
     return h
 end
 
-#!=
+#!! almost the same: only index & iter have been moved as function parameters
 # get the *first* index where a key is stored, or -1 if not present #!!
-function ht_keyindex(h::MultiDict{K,V}, key) where V where K
+function ht_keyindex(h::MultiDict, key, (index, iter)=(hashindex(key, length(h.keys)), 0))
     sz = length(h.keys)
-    iter = 0
     maxprobe = h.maxprobe
-    index = hashindex(key, sz)
     keys = h.keys
+
+    # precondition: iter <= maxprobe
 
     @inbounds while true
         if isslotempty(h,index)
@@ -287,6 +287,24 @@ end
 function get(h::MultiDict{K,V}, key, default) where V where K
     index = ht_keyindex(h, key)
     @inbounds return (index < 0) ? default : h.vals[index]::V
+end
+
+getindex(h::MultiDict, key) = ValueIterator1(h, key)
+
+function iterate(v::ValueIterator1{<:MultiDict},
+                 (index0, iter) = (hashindex(v.key, length(v.dict.keys)), 0))
+    h = v.dict
+    key = v.key
+
+    iter > h.maxprobe && return nothing
+    index = ht_keyindex(h, key, (index0, iter))
+    index == -1 && return nothing
+
+    val = h.vals[index]
+    sz = length(h.keys)
+    index = (index & (sz-1)) + 1
+    iter += (index-index0) & (sz-1)
+    return val, (index, iter)
 end
 
 #!=

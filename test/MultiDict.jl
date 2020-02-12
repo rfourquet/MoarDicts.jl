@@ -109,6 +109,23 @@ end
     if !isequal(a, a2)
         @test get(md, a2, :def) === :def
     end
+
+    mda = collect(md[a])
+    @test eltype(mda) == valtype(md)
+    @test length(mda) == 2
+    @test issetequal(mda, [b, c])
+    if !isequal(a, a2)
+        @test isempty(collect(md[a2]))
+    end
+end
+
+@testset "MultiDict getindex" begin
+    md = MultiDict{Int,Int}(1=>2, 1=>2)
+    @test collect(md[1]) == [2, 2]
+    @test eltype(md[1]) == Int
+    @test collect(md[0x1]) == [2, 2]
+    @test collect(md[0]) == Int[]
+    @test collect(md[false]) == Int[]
 end
 
 @testset "MultiDict show" begin
