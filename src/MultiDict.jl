@@ -283,6 +283,15 @@ function _push!(h::MultiDict{K,V}, v0, key::K) where {K,V}
     h
 end
 
+# TODO: optimize
+function setindex!(h::MultiDict, iter, key)
+    delete!(h, key)
+    for val in iter
+        push!(h, key => val)
+    end
+    h
+end
+
 #!=
 function get(h::MultiDict{K,V}, key, default) where V where K
     index = ht_keyindex(h, key)

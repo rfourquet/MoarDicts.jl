@@ -88,6 +88,7 @@ end
 
     ## delete!
     a, a2, b, c = _rand.((A, A, B, B))
+
     md = MultiDict(a => b, a => c, a2 => b, a2 => c, a => b)
     md2 = delete!(md, a2)
     @test md2 === md
@@ -109,6 +110,24 @@ end
     @test length(md) == 100
     delete!(md, a)
     @test isempty(md)
+
+    ## setindex!
+    md = MultiDict{A,B}()
+    md[a] = (b, c)
+    @test length(md) == 2
+    @test issetequal(md[a], (b, c))
+    md[a] = (c,)
+    @test length(md) == 1
+    @test issetequal(md[a], (c,))
+    md[a2] = (b, c)
+    if isequal(a, a2)
+        @test length(md) == 2
+        @test length(Set(keys(md))) == 1
+    else
+        @test length(md) == 3
+        @test length(Set(keys(md))) == 2
+    end
+    @test issetequal(md[a2], (b, c))
 end
 
 @testset "MultiDict query ($A, $B)" for (A, B) in gettypes()
