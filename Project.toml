@@ -1,5 +1,5 @@
 authors = ["Rafael Fourquet <fourquet.rafael@gmail.com>"]
-name    = "FlatCollections"
+name    = "MoarDicts"
 uuid    = "15001077-af68-4cc7-9614-a197249ba55d"
 version = "0.1.0"
 

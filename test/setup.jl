@@ -1,6 +1,6 @@
-using FlatCollections, Random, Test
+using MoarDicts, Random, Test
 
-using FlatCollections: MAX_NEWS_SEARCH, TEST_NCOMBOS_DEFAULT, TEST_TYPES_DEFAULT
+using MoarDicts: MAX_NEWS_SEARCH, TEST_NCOMBOS_DEFAULT, TEST_TYPES_DEFAULT
 
 _rand(::Type{T}) where {T} = rand(T)
 _rand(::Type{BigInt}) = rand(big.(typemin(Int128):typemax(Int128)))

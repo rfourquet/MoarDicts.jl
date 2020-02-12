@@ -1,4 +1,4 @@
-module FlatCollections
+module MoarDicts
 
 import Base: delete!, empty!, get, get!, getkey, isempty, iterate, length, pop!, setindex!
 
@@ -29,7 +29,7 @@ function runtests(;
                   types=TEST_TYPES_DEFAULT,
                   special::Bool=true)
 
-    Pkg.test("FlatCollections",
+    Pkg.test("MoarDicts",
              test_args =
              [ "ncombos=$ncombos",
                "types=" * join(types, ','),
