@@ -291,6 +291,37 @@ end
 
 getindex(h::MultiDict, key) = ValueIterator1(h, key)
 
+#!=
+function _delete!(h::MultiDict, index)
+    @inbounds h.slots[index] = 0x2
+    @inbounds _unsetindex!(h.keys, index)
+    @inbounds _unsetindex!(h.vals, index)
+    h.ndel += 1
+    h.count -= 1
+    h.age += 1
+    return h
+end
+
+#!!
+function delete!(h::MultiDict, key)
+    sz = length(h.keys)
+    iter = 0
+    maxprobe = h.maxprobe
+    index = hashindex(key, sz)
+    keys = h.keys
+
+    @inbounds while true
+        isslotempty(h, index) && break
+        if isslotfilled(h, index) && (key === keys[index] || isequal(key, keys[index]))
+            _delete!(h, index)
+        end
+        index = (index & (sz-1)) + 1
+        iter += 1
+        iter > maxprobe && break
+    end
+    h
+end
+
 function iterate(v::ValueIterator1{<:MultiDict},
                  (index0, iter) = (hashindex(v.key, length(v.dict.keys)), 0))
     h = v.dict
