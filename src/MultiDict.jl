@@ -1,6 +1,6 @@
 using Base: hashindex, limitrepr, _unsetindex!, @propagate_inbounds,
     maxprobeshift, maxprobeshift, maxallowedprobe, _tablesz, KeySet,
-    ValueIterator, dict_with_eltype, isiterable, promote_typejoin
+    dict_with_eltype, isiterable, promote_typejoin
 
 import Base: length, isempty, setindex!, iterate, push!, merge!, grow_to!,
     empty

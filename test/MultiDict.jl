@@ -111,7 +111,7 @@ end
     end
 end
 
-@testset "show" begin
+@testset "MultiDict show" begin
     md = MultiDict{Int,Int}()
     push!(md, 1 => 2)
     if VERSION > v"1.4.0-"
@@ -139,4 +139,23 @@ end
         @test occursin("MultiDict", showstr(md))
         @test occursin("MultiDict", replstr(md))
     end
+end
+
+@testset "MultiDict keys/values" begin
+    md = MultiDict{Int,UInt}(1=>2, 1=>3, 2=>3)
+
+    @test keytype(md) == Int
+    @test valtype(md) == UInt
+
+    ks = keys(md)
+    vs = values(md)
+
+    @test eltype(ks) == Int
+    @test eltype(vs) == UInt
+    @test length(ks) == 3
+    @test length(vs) == 3
+    @test !isempty(ks)
+    @test !isempty(vs)
+    @test sort!(collect(ks)) == [1, 1, 2]
+    @test sort!(collect(vs)) == [2, 3, 3]
 end

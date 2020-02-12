@@ -1,8 +1,11 @@
 import Base: show, summary, typeinfo_prefix, typeinfo_implicit, typeinfo_eltype, keytype, valtype,
-    eltype
-using Base: show_circular, _truncate_at_width_or_chars, showarg
+    eltype, keys, values
+using Base: show_circular, _truncate_at_width_or_chars, showarg, show_vector, _tt2, secret_table_token
 
 abstract type AbstractMultiDict{K,V} end
+abstract type AbstractMultiSet{K} end
+
+eltype(::Type{<:AbstractMultiSet{K}}) where {K} = K
 
 ## from base/dict.jl
 
@@ -30,6 +33,36 @@ function show(io::IO, t::AbstractMultiDict{K,V}) where V where K
 end
 
 ## from base/abstractdict.jl
+
+struct KeyMultiSet{K, T <: AbstractMultiDict{K}} <: AbstractMultiSet{K}
+    dict::T
+end
+
+struct ValueIterator{T<:AbstractMultiDict}
+    dict::T
+end
+
+#!=
+function summary(io::IO, iter::T) where {T<:Union{KeyMultiSet,ValueIterator}}
+    print(io, T.name, " for a ")
+    summary(io, iter.dict)
+end
+
+show(io::IO, iter::Union{KeyMultiSet,ValueIterator}) = show_vector(io, iter)
+
+length(v::Union{KeyMultiSet,ValueIterator}) = length(v.dict)
+isempty(v::Union{KeyMultiSet,ValueIterator}) = isempty(v.dict)
+
+eltype(::Type{ValueIterator{D}}) where {D} = _tt2(eltype(D))
+
+function iterate(v::Union{KeyMultiSet,ValueIterator}, state...)
+    y = iterate(v.dict, state...)
+    y === nothing && return nothing
+    return (y[1][isa(v, KeyMultiSet) ? 1 : 2], y[2]) #!!
+end
+
+keys(a::AbstractMultiDict) = KeyMultiSet(a)
+values(a::AbstractMultiDict) = ValueIterator(a)
 
 keytype(::Type{<:AbstractMultiDict{K,V}}) where {K,V} = K
 keytype(a::AbstractMultiDict) = keytype(typeof(a))
@@ -59,6 +92,37 @@ function summary(io::IO, t::AbstractMultiDict)
 end
 
 ## from base/show.jl
+
+#!=
+function show(io::IO, ::MIME"text/plain", iter::Union{KeyMultiSet,ValueIterator})
+    summary(io, iter)
+    isempty(iter) && return
+    print(io, ". ", isa(iter,KeyMultiSet) ? "Keys" : "Values", ":") #!!
+    limit::Bool = get(io, :limit, false)
+    if limit
+        sz = displaysize(io)
+        rows, cols = sz[1] - 3, sz[2]
+        rows < 2 && (print(io, " …"); return)
+        cols < 4 && (cols = 4)
+        cols -= 2 # For prefix "  "
+        rows -= 1 # For summary
+    else
+        rows = cols = typemax(Int)
+    end
+
+    for (i, v) in enumerate(iter)
+        print(io, "\n  ")
+        i == rows < length(iter) && (print(io, "⋮"); break)
+
+        if limit
+            str = sprint(show, v, context=io, sizehint=0)
+            str = _truncate_at_width_or_chars(str, cols, "\r\n")
+            print(io, str)
+        else
+            show(io, v)
+        end
+    end
+end
 
 #!=
 function show(io::IO, ::MIME"text/plain", t::AbstractMultiDict{K,V}) where {K,V}
