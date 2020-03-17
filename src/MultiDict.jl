@@ -3,7 +3,7 @@ using Base: hashindex, limitrepr, _unsetindex!, @propagate_inbounds,
     dict_with_eltype, isiterable, promote_typejoin
 
 import Base: length, isempty, setindex!, iterate, push!, merge!, grow_to!,
-    empty, getindex
+    empty, getindex, copy
 
 # + lines ending with a #!! comment are those modified within a function
 # otherwise copy-pasted from Base/dict.jl (besides the renaming to MultiDict)
@@ -58,6 +58,9 @@ end
 
 MultiDict() = MultiDict{Any,Any}()
 MultiDict(kv::Tuple{}) = MultiDict()
+
+#!=
+copy(d::MultiDict) = MultiDict(d)
 
 MultiDict(ps::Pair{K,V}...) where {K,V} = MultiDict{K,V}(ps)
 MultiDict(ps::Pair...)                  = MultiDict(ps)

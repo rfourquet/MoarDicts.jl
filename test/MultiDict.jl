@@ -15,14 +15,17 @@
     @test length(md) == 1
     md = MultiDict{A,B}(_rand(A) => _rand(B), _rand(A) => _rand(B))
     @test length(md) == 2
+    @test isequal(md, copy(md))
 
     md = MultiDict(_rand(A) => _rand(B) for _=1:3)
     @test md isa MultiDict{A,B}
     @test length(md) == 3
+    @test isequal(md, copy(md))
 
     md = MultiDict(_rand(A) => _rand(B), _rand(A) => _rand(B))
     @test md isa MultiDict{A,B}
     @test length(md) == 2
+    @test isequal(md, copy(md))
 
     if i == 1 # TODO: test more types
         md = MultiDict((1 => 2, 0x1 => 0x2))
@@ -191,7 +194,7 @@ end
 
     md = MultiDict(1=>missing)
     @test isequal(md, md)
-    @test isequal(md, MultiDict(1=>missing))
+    @test isequal(md, copy(md))
 end
 
 @testset "MultiDict show" begin
