@@ -185,6 +185,15 @@ end
     @test collect(md[false]) == Int[]
 end
 
+@testset "MultiDict isequal" begin
+    md = MultiDict(1=>2, 1=>2)
+    @test isequal(md, md)
+
+    md = MultiDict(1=>missing)
+    @test isequal(md, md)
+    @test isequal(md, MultiDict(1=>missing))
+end
+
 @testset "MultiDict show" begin
     md = MultiDict{Int,Int}()
     push!(md, 1 => 2)

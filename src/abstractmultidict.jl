@@ -109,6 +109,18 @@ function eltype(::Type{<:AbstractMultiDict{K,V}}) where {K,V}
 end
 
 #!=
+function isequal(l::AbstractMultiDict, r::AbstractMultiDict)
+    l === r && return true
+    length(l) != length(r) && return false
+    for pair in l
+        if !in(pair, r, isequal)
+            return false
+        end
+    end
+    true
+end
+
+#!=
 function summary(io::IO, t::AbstractMultiDict)
     n = length(t)
     showarg(io, t, true)
