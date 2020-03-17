@@ -111,7 +111,8 @@ function eltype(::Type{<:AbstractMultiDict{K,V}}) where {K,V}
 end
 
 #!=
-function isequal(l::AbstractMultiDict, r::AbstractMultiDict)
+function isequal(l::Union{AbstractMultiDict,AbstractDict},
+                 r::Union{AbstractMultiDict,AbstractDict})
     l === r && return true
     length(l) != length(r) && return false
     for pair in l
@@ -123,7 +124,8 @@ function isequal(l::AbstractMultiDict, r::AbstractMultiDict)
 end
 
 #!=
-function ==(l::AbstractMultiDict, r::AbstractMultiDict)
+function ==(l::Union{AbstractMultiDict,AbstractDict},
+            r::Union{AbstractMultiDict,AbstractDict})
     length(l) != length(r) && return false
     anymissing = false
     for pair in l

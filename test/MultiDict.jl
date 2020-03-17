@@ -195,23 +195,29 @@ end
     @test md == md
     @test md == copy(md)
     @test hash(md) == hash(md) == hash(copy(md))
+    @test md != Dict(md)
+    @test !isequal(md, Dict(md))
 
     md = MultiDict(1 => missing)
-    @test isequal(md, md)
-    @test isequal(md, copy(md))
-    @test ismissing(md == md)
-    @test ismissing(md == copy(md))
-    @test hash(md) == hash(md) == hash(copy(md))
+    for x = (md, copy(md), Dict(md))
+        @test isequal(md, x)
+        @test ismissing(md == x)
+        @test hash(md) == hash(x)
+    end
 
     md = MultiDict(1 => [missing])
-    @test isequal(md, md)
-    @test ismissing(md == md)
-    @test hash(md) == hash(md) == hash(copy(md))
+    for x = (md, copy(md), Dict(md))
+        @test isequal(md, x)
+        @test ismissing(md == x)
+        @test hash(md) == hash(x)
+    end
 
     md = MultiDict(1 => NaN)
-    @test isequal(md, md)
-    @test md != md
-    @test hash(md) == hash(md) == hash(copy(md))
+    for x = (md, copy(md), Dict(md))
+        @test isequal(md, x)
+        @test md != x
+        @test hash(md) == hash(x)
+    end
 end
 
 @testset "MultiDict show" begin
