@@ -3,7 +3,7 @@ using Base: hashindex, limitrepr, _unsetindex!, @propagate_inbounds,
     dict_with_eltype, isiterable, promote_typejoin
 
 import Base: length, isempty, setindex!, iterate, push!, merge!, grow_to!,
-    empty, getindex, copy
+    empty, getindex, copy, haskey
 
 # + lines ending with a #!! comment are those modified within a function
 # otherwise copy-pasted from Base/dict.jl (besides the renaming to MultiDict)
@@ -295,13 +295,15 @@ function setindex!(h::MultiDict, iter, key)
     h
 end
 
+getindex(h::MultiDict, key) = ValueIterator1(h, key)
+
 #!=
 function get(h::MultiDict{K,V}, key, default) where V where K
     index = ht_keyindex(h, key)
     @inbounds return (index < 0) ? default : h.vals[index]::V
 end
 
-getindex(h::MultiDict, key) = ValueIterator1(h, key)
+haskey(h::MultiDict, key) = ht_keyindex(h, key) >= 0
 
 #!=
 function _delete!(h::MultiDict, index)

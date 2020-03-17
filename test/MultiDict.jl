@@ -148,6 +148,8 @@ end
     @test length(md) == 1
     @test get(md, a, :def) === b
     @test in(a => b, md, isequal)
+    @test haskey(md, a)
+    @test haskey(md, a2) == isequal(a, a2)
     if B !== Missing
         @test (a => b) in md
     else
@@ -177,6 +179,10 @@ end
     end
 
     @test_throws ErrorException 1 in md
+
+    push!(md, a2 => c)
+    @test haskey(md, a)
+    @test haskey(md, a2)
 end
 
 @testset "MultiDict getindex" begin
