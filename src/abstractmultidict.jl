@@ -1,5 +1,5 @@
 import Base: show, summary, typeinfo_prefix, typeinfo_implicit, typeinfo_eltype, keytype, valtype,
-    eltype, keys, values
+    eltype, keys, values, isequal, ==, in
 using Base: show_circular, _truncate_at_width_or_chars, showarg, show_vector, _tt2, secret_table_token
 
 abstract type AbstractMultiDict{K,V} end
@@ -47,6 +47,16 @@ function show(io::IO, t::AbstractMultiDict{K,V}) where V where K
 end
 
 ## from base/abstractdict.jl
+
+#!!
+in(p::Pair, h::AbstractMultiDict, valcmp=(==)) =
+    any(valcmp(last(p)), h[first(p)])
+
+function in(p, a::AbstractMultiDict)
+    error("""AbstractMultiDict collections only contain Pairs;
+             Either look for e.g. A=>B instead, or use the `keys` or `values`
+             function if you are looking for a key or value respectively.""")
+end
 
 struct KeyMultiSet{K, T <: AbstractMultiDict{K}} <: AbstractMultiSet{K}
     dict::T

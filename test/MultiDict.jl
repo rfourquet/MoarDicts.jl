@@ -144,8 +144,20 @@ end
     @test !isempty(md)
     @test length(md) == 1
     @test get(md, a, :def) === b
+    @test in(a => b, md, isequal)
+    if B !== Missing
+        @test (a => b) in md
+    else
+        @test ((a => b) in md) === missing
+    end
 
     push!(md, a => c)
+    @test in(a => c, md, isequal)
+    if B !== Missing
+        @test (a => c) in md
+    else
+        @test ((a => c) in md) === missing
+    end
     # can't use get(...) ∈ (b, c) when missing is involved
     @test any(isequal(get(md, a, :def)), (b, c))
 
@@ -160,6 +172,8 @@ end
     if !isequal(a, a2)
         @test isempty(collect(md[a2]))
     end
+
+    @test_throws ErrorException 1 in md
 end
 
 @testset "MultiDict getindex" begin
