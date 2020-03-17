@@ -188,13 +188,26 @@ end
     @test collect(md[false]) == Int[]
 end
 
-@testset "MultiDict isequal" begin
-    md = MultiDict(1=>2, 1=>2)
-    @test isequal(md, md)
-
-    md = MultiDict(1=>missing)
+@testset "MultiDict isequal/==" begin
+    md = MultiDict(1 => 2, 1 => 2)
     @test isequal(md, md)
     @test isequal(md, copy(md))
+    @test md == md
+    @test md == copy(md)
+
+    md = MultiDict(1 => missing)
+    @test isequal(md, md)
+    @test isequal(md, copy(md))
+    @test ismissing(md == md)
+    @test ismissing(md == copy(md))
+
+    md = MultiDict(1 => [missing])
+    @test isequal(md, md)
+    @test ismissing(md == md)
+
+    md = MultiDict(1 => NaN)
+    @test isequal(md, md)
+    @test md != md
 end
 
 @testset "MultiDict show" begin

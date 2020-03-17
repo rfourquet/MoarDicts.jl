@@ -121,6 +121,21 @@ function isequal(l::AbstractMultiDict, r::AbstractMultiDict)
 end
 
 #!=
+function ==(l::AbstractMultiDict, r::AbstractMultiDict)
+    length(l) != length(r) && return false
+    anymissing = false
+    for pair in l
+        isin = in(pair, r)
+        if ismissing(isin)
+            anymissing = true
+        elseif !isin
+            return false
+        end
+    end
+    return anymissing ? missing : true
+end
+
+#!=
 function summary(io::IO, t::AbstractMultiDict)
     n = length(t)
     showarg(io, t, true)
