@@ -1,6 +1,8 @@
 import Base: show, summary, typeinfo_prefix, typeinfo_implicit, typeinfo_eltype, keytype, valtype,
-    eltype, keys, values, isequal, ==, in
-using Base: show_circular, _truncate_at_width_or_chars, showarg, show_vector, _tt2, secret_table_token
+    eltype, keys, values, isequal, ==, in, hash
+
+using Base: show_circular, _truncate_at_width_or_chars, showarg, show_vector, _tt2,
+    secret_table_token, hasha_seed
 
 abstract type AbstractMultiDict{K,V} end
 abstract type AbstractMultiSet{K} end
@@ -136,11 +138,21 @@ function ==(l::AbstractMultiDict, r::AbstractMultiDict)
 end
 
 #!=
+function hash(a::AbstractMultiDict, h::UInt)
+    hv = hasha_seed
+    for (k,v) in a
+        hv ⊻= hash(k, hash(v))
+    end
+    hash(hv, h)
+end
+
+#!=
 function summary(io::IO, t::AbstractMultiDict)
     n = length(t)
     showarg(io, t, true)
     print(io, " with ", n, (n==1 ? " entry" : " entries"))
 end
+
 
 ## from base/show.jl
 
