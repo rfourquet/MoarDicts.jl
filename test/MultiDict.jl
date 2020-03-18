@@ -22,6 +22,13 @@
     @test length(md) == 3
     @test isequal(md, copy(md))
 
+    emd = empty(md)
+    @test isempty(emd)
+    @test keytype(emd) == keytype(md)
+    @test valtype(emd) == valtype(md)
+    typeof(empty(md, Int)) == MultiDict{keytype(md), Int}
+    typeof(empty(md, Int, UInt)) == MultiDict{Int, UInt}
+
     md = MultiDict(_rand(A) => _rand(B), _rand(A) => _rand(B))
     @test md isa MultiDict{A,B}
     @test length(md) == 2

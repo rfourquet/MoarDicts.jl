@@ -1,5 +1,5 @@
 import Base: show, summary, typeinfo_prefix, typeinfo_implicit, typeinfo_eltype, keytype, valtype,
-    eltype, keys, values, isequal, ==, in, hash, get!
+    eltype, keys, values, isequal, ==, in, hash, get!, empty
 
 using Base: show_circular, _truncate_at_width_or_chars, showarg, show_vector, _tt2,
     secret_table_token, hasha_seed
@@ -96,6 +96,9 @@ end
 
 keys(a::AbstractMultiDict) = KeyMultiSet(a)
 values(a::AbstractMultiDict) = ValueIterator(a)
+
+empty(a::AbstractMultiDict) = empty(a, keytype(a), valtype(a))
+empty(a::AbstractMultiDict, ::Type{V}) where {V} = empty(a, keytype(a), V)
 
 keytype(::Type{<:AbstractMultiDict{K,V}}) where {K,V} = K
 keytype(a::AbstractMultiDict) = keytype(typeof(a))
