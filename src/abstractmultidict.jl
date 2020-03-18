@@ -1,5 +1,5 @@
 import Base: show, summary, typeinfo_prefix, typeinfo_implicit, typeinfo_eltype, keytype, valtype,
-    eltype, keys, values, isequal, ==, in, hash, get!, empty
+    eltype, keys, values, isequal, ==, in, hash, get!, empty, filter
 
 using Base: show_circular, _truncate_at_width_or_chars, showarg, show_vector, _tt2,
     secret_table_token, hasha_seed
@@ -104,6 +104,18 @@ keytype(::Type{<:AbstractMultiDict{K,V}}) where {K,V} = K
 keytype(a::AbstractMultiDict) = keytype(typeof(a))
 valtype(::Type{<:AbstractMultiDict{K,V}}) where {K,V} = V
 valtype(a::AbstractMultiDict) = valtype(typeof(a))
+
+#!! very similar, but without depwarn
+function filter(f, d::AbstractMultiDict)
+    # don't just do filter!(f, copy(d)): avoid making a whole copy of d
+    df = empty(d)
+    for pair in d
+        if f(pair)
+            push!(df, pair) #!!
+        end
+    end
+    df
+end
 
 #!=
 function eltype(::Type{<:AbstractMultiDict{K,V}}) where {K,V}

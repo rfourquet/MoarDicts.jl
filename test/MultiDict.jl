@@ -258,6 +258,30 @@ end
     @test haskey(md, a2)
 end
 
+@testset "MultiDict filter[!] ($A, $B)" for (A, B) in gettypes()
+    md0 = MultiDict(_rand(A) => _rand(B) for _=1:9)
+    len = length(md0)
+    ks = shuffle!(collect(keys(md0)))
+    vs = shuffle!(collect(values(md0)))
+    for _ = 1:len
+        k = pop!(ks)
+        md = copy(md0)
+        md1 = filter!(kv -> !isequal(k, first(kv)), md)
+        md2 = filter( kv -> !isequal(k, first(kv)), md0)
+        @test md1 === md
+        @test length(md1) == length(md2) < length(md0) == len
+        @test isequal(md1, md2)
+
+        v = pop!(vs)
+        md = copy(md0)
+        md1 = filter!(kv -> !isequal(v, last(kv)), md)
+        md2 = filter( kv -> !isequal(v, last(kv)), md0)
+        @test md1 === md
+        @test length(md1) == length(md2) < length(md0) == len
+        @test isequal(md1, md2)
+    end
+end
+
 @testset "MultiDict getindex" begin
     md = MultiDict{Int,Int}(1=>2, 1=>2)
     @test collect(md[1]) == [2, 2]

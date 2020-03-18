@@ -3,7 +3,7 @@ using Base: hashindex, limitrepr, _unsetindex!, @propagate_inbounds,
     dict_with_eltype, isiterable, promote_typejoin, Callable
 
 import Base: length, isempty, setindex!, iterate, push!, merge!, grow_to!,
-    empty, getindex, copy, haskey, get!
+    empty, getindex, copy, haskey, get!, filter!
 
 # + lines ending with a #!! comment are those modified within a function
 # otherwise copy-pasted from Base/dict.jl (besides the renaming to MultiDict)
@@ -446,6 +446,17 @@ end
 
 isempty(t::MultiDict) = (t.count == 0)
 length(t::MultiDict) = t.count
+
+#!=
+function filter!(pred, h::MultiDict{K,V}) where {K,V}
+    h.count == 0 && return h
+    @inbounds for i=1:length(h.slots)
+        if h.slots[i] == 0x01 && !pred(Pair{K,V}(h.keys[i], h.vals[i]))
+            _delete!(h, i)
+        end
+    end
+    return h
+end
 
 ### from base/abstractdict.jl
 
