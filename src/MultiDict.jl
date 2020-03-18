@@ -303,7 +303,14 @@ function get(h::MultiDict{K,V}, key, default) where V where K
     @inbounds return (index < 0) ? default : h.vals[index]::V
 end
 
+#!=
 haskey(h::MultiDict, key) = ht_keyindex(h, key) >= 0
+
+#!=
+function getkey(h::MultiDict{K,V}, key, default) where V where K
+    index = ht_keyindex(h, key)
+    @inbounds return (index<0) ? default : h.keys[index]::K
+end
 
 #!=
 function _delete!(h::MultiDict, index)

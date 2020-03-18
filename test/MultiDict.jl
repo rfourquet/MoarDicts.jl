@@ -150,6 +150,9 @@ end
     @test in(a => b, md, isequal)
     @test haskey(md, a)
     @test haskey(md, a2) == isequal(a, a2)
+    @test isequal(getkey(md, a, :def), a)
+    @test isequal(getkey(md, a2, :def), isequal(a, a2) ? a2 : :def)
+
     if B !== Missing
         @test (a => b) in md
     else
@@ -165,9 +168,11 @@ end
     end
     # can't use get(...) ∈ (b, c) when missing is involved
     @test any(isequal(get(md, a, :def)), (b, c))
+    @test isequal(getkey(md, a, :def), a)
 
     if !isequal(a, a2)
         @test get(md, a2, :def) === :def
+        @test getkey(md, a2, :def) === :def
     end
 
     mda = collect(md[a])
