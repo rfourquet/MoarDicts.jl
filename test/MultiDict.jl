@@ -155,6 +155,43 @@ end
     else
         @test isequal(v, c)
     end
+
+    ## pop!
+    a, b, c, x, y, z = _rand.((A, A, A, B, B, B))
+    md = MultiDict(a => x, a => y, b => z)
+    avals = Set([x, y])
+    isequal(a, b) && push!(avals, z)
+
+    u = pop!(md, a, :def)
+    @test u in avals
+    @test u !== :def # redundant test, as :def can't be generated from _rand(Symbol)
+    @test length(md) == 2
+
+    v = pop!(md, a)
+    @test v in avals
+    @test !isequal(v, u) || isequal(x, y) || isequal(a, b)
+    @test Set([u, v]) == Set([x, y]) || isequal(a, b)
+    @test length(md) == 1
+    if !isequal(a, b)
+        @test !in(a => x, md, isequal)
+        @test !in(a => y, md, isequal)
+        @test_throws KeyError pop!(md, a)
+        @test pop!(md, a, :def) === :def
+        w = pop!(md)
+        @test w === (b => z)
+        @test isempty(md)
+    else
+        @test in(pop!(md, a), avals)
+        @test isempty(md)
+    end
+    @test_throws ArgumentError pop!(md)
+
+    md = MultiDict(a => x, a => y, b => z)
+    md2 = copy(md)
+    @test in(pop!(md), md2, isequal)
+    @test in(pop!(md), md2, isequal)
+    @test in(pop!(md), md2, isequal)
+    @test isempty(md)
 end
 
 @testset "MultiDict query ($A, $B)" for (A, B) in gettypes()

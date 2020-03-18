@@ -336,6 +336,35 @@ function getkey(h::MultiDict{K,V}, key, default) where V where K
 end
 
 #!=
+function _pop!(h::MultiDict, index)
+    @inbounds val = h.vals[index]
+    _delete!(h, index)
+    return val
+end
+
+#!=
+function pop!(h::MultiDict, key)
+    index = ht_keyindex(h, key)
+    return index > 0 ? _pop!(h, index) : throw(KeyError(key))
+end
+
+#!=
+function pop!(h::MultiDict, key, default)
+    index = ht_keyindex(h, key)
+    return index > 0 ? _pop!(h, index) : default
+end
+
+#!=
+function pop!(h::MultiDict)
+    isempty(h) && throw(ArgumentError("multidict must be non-empty"))
+    idx = skip_deleted_floor!(h)
+    @inbounds key = h.keys[idx]
+    @inbounds val = h.vals[idx]
+    _delete!(h, idx)
+    key => val
+end
+
+#!=
 function _delete!(h::MultiDict, index)
     @inbounds h.slots[index] = 0x2
     @inbounds _unsetindex!(h.keys, index)
