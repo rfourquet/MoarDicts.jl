@@ -131,6 +131,30 @@ end
         @test length(Set(keys(md))) == 2
     end
     @test issetequal(md[a2], (b, c))
+
+    ## get!
+    a, a2, a3, b, c, d = _rand.((A, A, A, B, B, B))
+
+    md = MultiDict(a => b, a2 => c)
+    g = get!(md, a, :def)
+    if isequal(a, a2)
+        @test isequal(g, b) || isequal(g, c)
+    else
+        @test isequal(g, b)
+    end
+    if !isequal(a, a2) && !isequal(a, a3)
+        f = get!(md, a3, d)
+        @test isequal(f, d)
+        @test length(collect(md[a3])) == 1
+        @test isequal(first(md[a3]), d)
+    end
+    md = MultiDict(a => b)
+    v = get!(() -> c, md, a2)
+    if isequal(a, a2)
+        @test isequal(v, b)
+    else
+        @test isequal(v, c)
+    end
 end
 
 @testset "MultiDict query ($A, $B)" for (A, B) in gettypes()

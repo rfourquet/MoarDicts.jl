@@ -1,5 +1,5 @@
 import Base: show, summary, typeinfo_prefix, typeinfo_implicit, typeinfo_eltype, keytype, valtype,
-    eltype, keys, values, isequal, ==, in, hash
+    eltype, keys, values, isequal, ==, in, hash, get!
 
 using Base: show_circular, _truncate_at_width_or_chars, showarg, show_vector, _tt2,
     secret_table_token, hasha_seed
@@ -58,6 +58,13 @@ function in(p, a::AbstractMultiDict)
     error("""AbstractMultiDict collections only contain Pairs;
              Either look for e.g. A=>B instead, or use the `keys` or `values`
              function if you are looking for a key or value respectively.""")
+end
+
+#!=
+function summary(io::IO, t::AbstractMultiDict)
+    n = length(t)
+    showarg(io, t, true)
+    print(io, " with ", n, (n==1 ? " entry" : " entries"))
 end
 
 struct KeyMultiSet{K, T <: AbstractMultiDict{K}} <: AbstractMultiSet{K}
@@ -148,12 +155,7 @@ function hash(a::AbstractMultiDict, h::UInt)
     hash(hv, h)
 end
 
-#!=
-function summary(io::IO, t::AbstractMultiDict)
-    n = length(t)
-    showarg(io, t, true)
-    print(io, " with ", n, (n==1 ? " entry" : " entries"))
-end
+get!(t::AbstractMultiDict, key, default) = get!(() -> default, t, key)
 
 
 ## from base/show.jl

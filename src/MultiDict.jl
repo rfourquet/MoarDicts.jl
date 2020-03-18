@@ -1,9 +1,9 @@
 using Base: hashindex, limitrepr, _unsetindex!, @propagate_inbounds,
     maxprobeshift, maxprobeshift, maxallowedprobe, _tablesz, KeySet,
-    dict_with_eltype, isiterable, promote_typejoin
+    dict_with_eltype, isiterable, promote_typejoin, Callable
 
 import Base: length, isempty, setindex!, iterate, push!, merge!, grow_to!,
-    empty, getindex, copy, haskey
+    empty, getindex, copy, haskey, get!
 
 # + lines ending with a #!! comment are those modified within a function
 # otherwise copy-pasted from Base/dict.jl (besides the renaming to MultiDict)
@@ -284,6 +284,29 @@ function _push!(h::MultiDict{K,V}, v0, key::K) where {K,V}
     @inbounds _setindex!(h, v, key, index)
 
     h
+end
+
+#!=
+function get!(default::Callable, h::MultiDict{K,V}, key0) where V where K
+    key = convert(K, key0)
+    if !isequal(key, key0)
+        throw(ArgumentError("$(limitrepr(key0)) is not a valid key for type $K"))
+    end
+    return get!(default, h, key)
+end
+
+# TODO: could be slightly optimzized
+#!!
+function get!(default::Callable, h::MultiDict{K,V}, key::K) where V where K
+    index = ht_keyindex(h, key)
+
+    if index > 0
+        h.vals[index]
+    else
+        v = convert(V, default())
+        _push!(h, v, key)
+        v
+    end
 end
 
 # TODO: optimize
