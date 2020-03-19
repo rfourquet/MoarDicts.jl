@@ -1,6 +1,10 @@
 module MoarDicts
 
-import Base: delete!, empty!, get, get!, getkey, isempty, iterate, length, pop!, setindex!
+import Base: ==, copy, delete!, eltype, empty, empty!, filter, filter!, get,
+             get!, getindex, getkey, grow_to!, hash, haskey, in, isempty,
+             isequal, iterate, keys, keytype, length, merge!, pop!, push!,
+             setindex!, show, summary, typeinfo_eltype, typeinfo_implicit,
+             typeinfo_prefix, valtype, values
 
 if isdefined(Base, :limitrepr)
     using Base: limitrepr

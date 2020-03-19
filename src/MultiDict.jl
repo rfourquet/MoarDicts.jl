@@ -1,9 +1,6 @@
-using Base: hashindex, limitrepr, _unsetindex!, @propagate_inbounds,
-    maxprobeshift, maxprobeshift, maxallowedprobe, _tablesz, KeySet,
-    dict_with_eltype, isiterable, promote_typejoin, Callable
-
-import Base: length, isempty, setindex!, iterate, push!, grow_to!,
-    empty, getindex, copy, haskey, get!, filter!
+using Base: @propagate_inbounds, Callable, KeySet, _tablesz, _unsetindex!,
+            dict_with_eltype, hashindex, isiterable, limitrepr,
+            maxallowedprobe, maxprobeshift, promote_typejoin
 
 # + lines ending with a #!! comment are those modified within a function
 # otherwise copy-pasted from Base/dict.jl (besides the renaming to MultiDict)

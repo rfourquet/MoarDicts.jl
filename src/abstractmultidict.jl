@@ -1,8 +1,5 @@
-import Base: show, summary, typeinfo_prefix, typeinfo_implicit, typeinfo_eltype, keytype, valtype,
-    eltype, keys, values, isequal, ==, in, hash, get!, empty, filter, merge!
-
-using Base: show_circular, _truncate_at_width_or_chars, showarg, show_vector, _tt2,
-    secret_table_token, hasha_seed
+using Base: _truncate_at_width_or_chars, _tt2, hasha_seed, secret_table_token,
+            show_circular, show_vector, showarg
 
 abstract type AbstractMultiDict{K,V} end
 abstract type AbstractMultiSet{K} end
