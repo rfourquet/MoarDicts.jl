@@ -12,7 +12,7 @@ include("FlatDict.jl")
 include("abstractmultidict.jl")
 include("MultiDict.jl")
 
-export FlatDict, MultiDict
+export FlatDict, AbstractMultiDict, MultiDict
 
 
 ## runtests

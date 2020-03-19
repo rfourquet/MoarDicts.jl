@@ -1,5 +1,5 @@
 import Base: show, summary, typeinfo_prefix, typeinfo_implicit, typeinfo_eltype, keytype, valtype,
-    eltype, keys, values, isequal, ==, in, hash, get!, empty, filter
+    eltype, keys, values, isequal, ==, in, hash, get!, empty, filter, merge!
 
 using Base: show_circular, _truncate_at_width_or_chars, showarg, show_vector, _tt2,
     secret_table_token, hasha_seed
@@ -99,6 +99,17 @@ values(a::AbstractMultiDict) = ValueIterator(a)
 
 empty(a::AbstractMultiDict) = empty(a, keytype(a), valtype(a))
 empty(a::AbstractMultiDict, ::Type{V}) where {V} = empty(a, keytype(a), V)
+
+#!!
+function merge!(d     ::Union{AbstractMultiDict,AbstractDict},
+                others::Union{AbstractMultiDict,AbstractDict}...)
+    for other in others
+        for p in other
+            push!(d, p)
+        end
+    end
+    return d
+end
 
 keytype(::Type{<:AbstractMultiDict{K,V}}) where {K,V} = K
 keytype(a::AbstractMultiDict) = keytype(typeof(a))

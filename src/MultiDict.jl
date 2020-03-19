@@ -2,7 +2,7 @@ using Base: hashindex, limitrepr, _unsetindex!, @propagate_inbounds,
     maxprobeshift, maxprobeshift, maxallowedprobe, _tablesz, KeySet,
     dict_with_eltype, isiterable, promote_typejoin, Callable
 
-import Base: length, isempty, setindex!, iterate, push!, merge!, grow_to!,
+import Base: length, isempty, setindex!, iterate, push!, grow_to!,
     empty, getindex, copy, haskey, get!, filter!
 
 # + lines ending with a #!! comment are those modified within a function
@@ -456,16 +456,4 @@ function filter!(pred, h::MultiDict{K,V}) where {K,V}
         end
     end
     return h
-end
-
-### from base/abstractdict.jl
-
-#!!
-function merge!(d::MultiDict, others::Union{AbstractDict,MultiDict}...)
-    for other in others
-        for p in other
-            push!(d, p)
-        end
-    end
-    return d
 end

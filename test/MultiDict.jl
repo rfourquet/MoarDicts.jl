@@ -83,16 +83,50 @@ end
     ## merge!
     let (a, b) = _rand(A) => _rand(B)
         (c, d) = _rand(A) => _rand(B)
-        for dd = (Dict(c => d), MultiDict{A,B}(c => d))
-            md = MultiDict{A,B}(a => b)
-            md2 = merge!(md, Dict(c => d))
-            @test md2 === md
-            r = collect(md)
-            @test length(md) == 2
-            if A !== Missing && B !== Missing
-                @test (a => b) in r
-                @test (c => d) in r
+        for dd = (Dict(c => d), MultiDict(c => d))
+            for md = (Dict(a => b), MultiDict(a => b))
+                md2 = merge!(md, dd)
+                @test md2 === md
+                if md isa AbstractMultiDict
+                    @test length(md) == 2
+                    @test in(a => b, md, isequal)
+                    @test in(c => d, md, isequal)
+                else
+                    if isequal(a, c)
+                        @test length(md) == 1
+                        @test in(a => b, md, isequal) || in(c => d, md, isequal)
+                    else
+                        @test length(md) == 2
+                        @test in(a => b, md, isequal)
+                        @test in(c => d, md, isequal)
+                    end
+                end
             end
+        end
+
+        dd = Dict(c => d)
+        md = MultiDict(a => b)
+        merge!(md, copy(md))
+        @test isequal(collect(md[a]), [b, b])
+        merge!(dd, md)
+        if isequal(a, c)
+            @test length(dd) == 1
+            @test dd[a] ∈ Set([b, d])
+        else
+            cdd = collect(dd)
+            @test isequal(cdd, [c => d, a => b]) ||
+                isequal(cdd, [a => b, c => d])
+        end
+        # md = a => b, a => b
+        # dd = c => d, a => b
+        merge!(md, dd, dd)
+        @test length(collect(md[a])) == 4
+        if isequal(a, c)
+            @test length(md) == 4
+            @test Set(md[a]) ⊆ Set([b, d])
+        else
+            @test length(md) == 6
+            @test isequal(Set(md[a]), Set([b]))
         end
     end
 
