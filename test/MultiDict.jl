@@ -295,6 +295,12 @@ end
     push!(md, a2 => c)
     @test haskey(md, a)
     @test haskey(md, a2)
+
+    # pairs
+    md = MultiDict(_rand(A) => _rand(B) for _=1:9)
+    md2 = copy(md)
+    @test pairs(md) === md
+    @test isequal(md, md2) # check that `pairs` didn't mutate md
 end
 
 @testset "MultiDict filter[!] ($A, $B)" for (A, B) in gettypes()

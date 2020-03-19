@@ -94,6 +94,8 @@ end
 keys(a::AbstractMultiDict) = KeyMultiSet(a)
 values(a::AbstractMultiDict) = ValueIterator(a)
 
+pairs(a::AbstractMultiDict) = a
+
 empty(a::AbstractMultiDict) = empty(a, keytype(a), valtype(a))
 empty(a::AbstractMultiDict, ::Type{V}) where {V} = empty(a, keytype(a), V)
 
