@@ -307,11 +307,15 @@ end
     @test haskey(md, a)
     @test haskey(md, a2)
 
-    # pairs
+    ## pairs
     md = MultiDict(_rand(A) => _rand(B) for _=1:9)
     md2 = copy(md)
     @test pairs(md) === md
     @test isequal(md, md2) # check that `pairs` didn't mutate md
+
+    ## in(_, keys(md))
+    kv = first(md) # TODO: use rand instead of first
+    @test first(kv) in keys(md)
 end
 
 @testset "MultiDict filter[!] ($A, $B)" for (A, B) in gettypes()

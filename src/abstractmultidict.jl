@@ -93,6 +93,10 @@ function iterate(v::Union{KeyMultiSet,ValueIterator}, state...)
     return (y[1][isa(v, KeyMultiSet) ? 1 : 2], y[2]) #!!
 end
 
+#!=
+in(k, v::KeyMultiSet) =
+    get(v.dict, k, secret_table_token) !== secret_table_token
+
 keys(a::AbstractMultiDict) = KeyMultiSet(a)
 values(a::AbstractMultiDict) = ValueIterator(a)
 
