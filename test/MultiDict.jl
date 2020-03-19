@@ -183,7 +183,7 @@ end
     else
         @test isequal(g, b)
     end
-    if !isequal(a, a2) && !isequal(a, a3)
+    if length(Set([a, a2, a3])) == 3
         f = get!(md, a3, d)
         @test isequal(f, d)
         @test length(collect(md[a3])) == 1
