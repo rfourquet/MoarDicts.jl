@@ -56,6 +56,11 @@ end
     P = eltype(md)
 
     @test collect(md) == P[]
+
+    v = [_rand(A) => _rand(B) for _=1:rand(1:40)]
+    md = MultiDict(v)
+    @test length(md) == length(v)
+    @test isequal(Set(md), Set(v))
 end
 
 @testset "MultiDict update ($A, $B)" for (A, B) in gettypes()
