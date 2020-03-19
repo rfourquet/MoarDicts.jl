@@ -238,6 +238,17 @@ end
     @test in(pop!(md), md2, isequal)
     @test in(pop!(md), md2, isequal)
     @test isempty(md)
+
+    ## copy!
+    for md in (MultiDict(a => x, a => y, b => z), Dict(a => x, b => z))
+        for md2 in (MultiDict(b => x), Dict(b => x))
+            r = copy!(md2, md)
+            @test md2 === r
+            if (md isa MultiDict) == (md2 isa MultiDict) || md2 isa MultiDict
+                @test isequal(md2, md)
+            end
+        end
+    end
 end
 
 @testset "MultiDict query ($A, $B)" for (A, B) in gettypes()

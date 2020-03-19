@@ -101,6 +101,9 @@ pairs(a::AbstractMultiDict) = a
 empty(a::AbstractMultiDict) = empty(a, keytype(a), valtype(a))
 empty(a::AbstractMultiDict, ::Type{V}) where {V} = empty(a, keytype(a), V)
 
+#!=
+copy!(dst::Associative, src::Associative) = merge!(empty!(dst), src)
+
 #!!
 function merge!(d::Associative, others::Associative...)
     for other in others

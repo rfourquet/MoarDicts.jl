@@ -1,7 +1,7 @@
 module MoarDicts
 
-import Base: ==, copy, delete!, eltype, empty, empty!, filter, filter!, get,
-             get!, getindex, getkey, grow_to!, hash, haskey, in, isempty,
+import Base: ==, copy, copy!, delete!, eltype, empty, empty!, filter, filter!,
+             get, get!, getindex, getkey, grow_to!, hash, haskey, in, isempty,
              isequal, iterate, keys, keytype, length, merge!, pairs, pop!,
              push!, setindex!, show, summary, typeinfo_eltype,
              typeinfo_implicit, typeinfo_prefix, valtype, values
