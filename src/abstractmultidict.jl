@@ -1,5 +1,5 @@
-using Base: _truncate_at_width_or_chars, _tt2, hasha_seed, secret_table_token,
-            show_circular, show_vector, showarg
+using Base: _truncate_at_width_or_chars, _tt2, hasha_seed, promoteK, promoteV,
+            secret_table_token, show_circular, show_vector, showarg
 
 abstract type AbstractMultiDict{K,V} end
 abstract type AbstractMultiSet{K} end
@@ -122,6 +122,15 @@ keytype(::Type{<:AbstractMultiDict{K,V}}) where {K,V} = K
 keytype(a::AbstractMultiDict) = keytype(typeof(a))
 valtype(::Type{<:AbstractMultiDict{K,V}}) where {K,V} = V
 valtype(a::AbstractMultiDict) = valtype(typeof(a))
+
+merge(d::Associative, others::Associative...) =
+    merge!(_typeddict(d, others...), others...)
+
+function _typeddict(d::Associative, others::Associative...)
+    K = promoteK(keytype(d), others...)
+    V = promoteV(valtype(d), others...)
+    MultiDict{K,V}(d)
+end
 
 #!! very similar, but without depwarn
 function filter(f, d::AbstractMultiDict)

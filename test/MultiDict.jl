@@ -85,56 +85,6 @@ end
         @test isempty(md)
     end
 
-    ## merge!
-    let (a, b) = _rand(A) => _rand(B)
-        (c, d) = _rand(A) => _rand(B)
-        for dd = (Dict(c => d), MultiDict(c => d))
-            for md = (Dict(a => b), MultiDict(a => b))
-                md2 = merge!(md, dd)
-                @test md2 === md
-                if md isa AbstractMultiDict
-                    @test length(md) == 2
-                    @test in(a => b, md, isequal)
-                    @test in(c => d, md, isequal)
-                else
-                    if isequal(a, c)
-                        @test length(md) == 1
-                        @test in(a => b, md, isequal) || in(c => d, md, isequal)
-                    else
-                        @test length(md) == 2
-                        @test in(a => b, md, isequal)
-                        @test in(c => d, md, isequal)
-                    end
-                end
-            end
-        end
-
-        dd = Dict(c => d)
-        md = MultiDict(a => b)
-        merge!(md, copy(md))
-        @test isequal(collect(md[a]), [b, b])
-        merge!(dd, md)
-        if isequal(a, c)
-            @test length(dd) == 1
-            @test dd[a] ∈ Set([b, d])
-        else
-            cdd = collect(dd)
-            @test isequal(cdd, [c => d, a => b]) ||
-                isequal(cdd, [a => b, c => d])
-        end
-        # md = a => b, a => b
-        # dd = c => d, a => b
-        merge!(md, dd, dd)
-        @test length(collect(md[a])) == 4
-        if isequal(a, c)
-            @test length(md) == 4
-            @test Set(md[a]) ⊆ Set([b, d])
-        else
-            @test length(md) == 6
-            @test isequal(Set(md[a]), Set([b]))
-        end
-    end
-
     ## delete!
     a, a2, b, c = _rand.((A, A, B, B))
 
@@ -316,6 +266,70 @@ end
     ## in(_, keys(md))
     kv = first(md) # TODO: use rand instead of first
     @test first(kv) in keys(md)
+end
+
+@testset "MultiDict merge[!] ($A, $B)" for (A, B) in gettypes()
+    ## merge!
+    let (a, b) = _rand(A) => _rand(B)
+        (c, d) = _rand(A) => _rand(B)
+        for dd = (Dict(c => d), MultiDict(c => d))
+            for md = (Dict(a => b), MultiDict(a => b))
+                md3 = merge(md, dd)
+                md2 = merge!(md, dd)
+                @test md2 === md
+                if md isa AbstractMultiDict
+                    @test isequal(md2, md3)
+                else
+                    @test issubset(md2, Set(md3)) # Set for handling missing
+                end
+                if md isa AbstractMultiDict
+                    @test length(md) == 2
+                    @test in(a => b, md, isequal)
+                    @test in(c => d, md, isequal)
+                else
+                    if isequal(a, c)
+                        @test length(md) == 1
+                        @test in(a => b, md, isequal) || in(c => d, md, isequal)
+                    else
+                        @test length(md) == 2
+                        @test in(a => b, md, isequal)
+                        @test in(c => d, md, isequal)
+                    end
+                end
+            end
+        end
+
+        dd = Dict(c => d)
+        md = MultiDict(a => b)
+        md2 = merge(md, md)
+        merge!(md, copy(md))
+        @test isequal(md, md2)
+        @test isequal(collect(md[a]), [b, b])
+        dd2 = merge(dd, md)
+        merge!(dd, md)
+        @test issubset(dd, Set(dd2))
+        if isequal(a, c)
+            @test length(dd) == 1
+            @test dd[a] ∈ Set([b, d])
+        else
+            cdd = collect(dd)
+            @test isequal(cdd, [c => d, a => b]) ||
+                isequal(cdd, [a => b, c => d])
+        end
+        # md = a => b, a => b
+        # dd = c => d, a => b
+        md2 = merge(md, dd, dd)
+        merge!(md, dd, dd)
+        @test isequal(md, md2)
+        @test length(collect(md[a])) == 4
+        if isequal(a, c)
+            @test length(md) == 4
+            @test Set(md[a]) ⊆ Set([b, d])
+        else
+            @test length(md) == 6
+            @test isequal(Set(md[a]), Set([b]))
+        end
+    end
 end
 
 @testset "MultiDict filter[!] ($A, $B)" for (A, B) in gettypes()
