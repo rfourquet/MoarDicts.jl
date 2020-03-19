@@ -4,6 +4,8 @@ using Base: _truncate_at_width_or_chars, _tt2, hasha_seed, secret_table_token,
 abstract type AbstractMultiDict{K,V} end
 abstract type AbstractMultiSet{K} end
 
+const Associative = Union{AbstractDict,AbstractMultiDict}
+
 eltype(::Type{<:AbstractMultiSet{K}}) where {K} = K
 
 # iterates values for 1 given key
@@ -100,8 +102,7 @@ empty(a::AbstractMultiDict) = empty(a, keytype(a), valtype(a))
 empty(a::AbstractMultiDict, ::Type{V}) where {V} = empty(a, keytype(a), V)
 
 #!!
-function merge!(d     ::Union{AbstractMultiDict,AbstractDict},
-                others::Union{AbstractMultiDict,AbstractDict}...)
+function merge!(d::Associative, others::Associative...)
     for other in others
         for p in other
             push!(d, p)
@@ -143,8 +144,7 @@ function eltype(::Type{<:AbstractMultiDict{K,V}}) where {K,V}
 end
 
 #!=
-function isequal(l::Union{AbstractMultiDict,AbstractDict},
-                 r::Union{AbstractMultiDict,AbstractDict})
+function isequal(l::Associative, r::Associative)
     l === r && return true
     length(l) != length(r) && return false
     for pair in l
@@ -156,8 +156,7 @@ function isequal(l::Union{AbstractMultiDict,AbstractDict},
 end
 
 #!=
-function ==(l::Union{AbstractMultiDict,AbstractDict},
-            r::Union{AbstractMultiDict,AbstractDict})
+function ==(l::Associative, r::Associative)
     length(l) != length(r) && return false
     anymissing = false
     for pair in l
