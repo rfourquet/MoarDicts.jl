@@ -186,6 +186,13 @@ function hash(a::AbstractMultiDict, h::UInt)
     hash(hv, h)
 end
 
+#!=
+getindex(t::AbstractMultiDict, k1, k2, ks...) =
+    getindex(t, tuple(k1,k2,ks...))
+
+setindex!(t::AbstractMultiDict, v, k1, k2, ks...) =
+    setindex!(t, v, tuple(k1,k2,ks...))
+
 get!(t::AbstractMultiDict, key, default) = get!(() -> default, t, key)
 
 

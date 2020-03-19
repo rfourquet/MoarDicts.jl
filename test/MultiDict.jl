@@ -342,13 +342,20 @@ end
     end
 end
 
-@testset "MultiDict getindex" begin
+@testset "MultiDict setindex!/getindex" begin
     md = MultiDict{Int,Int}(1=>2, 1=>2)
     @test collect(md[1]) == [2, 2]
     @test eltype(md[1]) == Int
     @test collect(md[0x1]) == [2, 2]
     @test collect(md[0]) == Int[]
     @test collect(md[false]) == Int[]
+
+    ## md[x, y, z]
+    md = MultiDict()
+    md[1, 2, 3] = (1, 2)
+    @test haskey(md, (1, 2, 3))
+    @test md[1, 2, 3] == md[(1, 2, 3)]
+    @test Set(md[1, 2, 3]) == Set([1, 2])
 end
 
 @testset "MultiDict isequal/==/hash" begin
