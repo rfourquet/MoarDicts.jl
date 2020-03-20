@@ -25,11 +25,17 @@ end
 
 function FlatDict{K,V}(kv) where V where K
     h = FlatDict{K,V}()
+    # sizehint!(h, length(ps)) # TODO
     for (k, v) in kv
         push!(h, k => v)
     end
     h
 end
+
+FlatDict{K,V}(p::Pair) where {K,V} = push!(FlatDict{K,V}(), p)
+
+FlatDict{K,V}(ps::Pair...) where {K,V} = FlatDict{K,V}(ps)
+
 
 ## internal: resort! & makekey & mapping & getval
 

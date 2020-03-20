@@ -11,7 +11,18 @@
 
     push!(fd, _rand(A) => _rand(B))
     fd3 = FlatDict{A,B}(p for p in fd)
+    @test fd3 isa FlatDict{A,B}
     @test isequal(fd3, fd)
+
+    fd4 = FlatDict{A,B}(_rand(A) => _rand(B))
+    @test fd4 isa FlatDict{A,B}
+    @test length(fd4) == 1
+    fd5 = FlatDict{A,B}(_rand(A) => _rand(B), _rand(A) => _rand(B))
+    @test fd5 isa FlatDict{A,B}
+    @test length(fd5) ∈ 1:2
+    fd6 = FlatDict{A,B}(_rand(A) => _rand(B), _rand(A) => _rand(B), _rand(A) => _rand(B))
+    @test fd6 isa FlatDict{A,B}
+    @test length(fd6) ∈ 1:3
 end
 
 @testset "update ($A, $B)" for (A, B) in gettypes()
