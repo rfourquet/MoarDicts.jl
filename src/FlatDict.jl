@@ -181,7 +181,7 @@ end
 
 get!(fd::FlatDict, key, default) = get!(() -> default, fd, key)
 
-function get!(fun, fd::FlatDict, key)
+function get!(fun::Callable, fd::FlatDict, key)
     key = makekey(fd, key)
     val = getval(fd, key)
     if val === nothing

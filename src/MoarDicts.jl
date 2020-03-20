@@ -7,6 +7,8 @@ import Base: ==, _typeddict, convert, copy, copy!, delete!, eltype, empty,
              reduce, setindex!, show, summary, typeinfo_eltype,
              typeinfo_implicit, typeinfo_prefix, valtype, values
 
+using Base: Callable
+
 if VERSION >= v"1.5.0-DEV.182"
     import Base: mergewith, mergewith!
 end

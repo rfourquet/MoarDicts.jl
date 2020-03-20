@@ -1,4 +1,4 @@
-using Base: @propagate_inbounds, Callable, KeySet, _tablesz, _unsetindex!,
+using Base: @propagate_inbounds, KeySet, _tablesz, _unsetindex!,
             dict_with_eltype, hashindex, isiterable, limitrepr,
             maxallowedprobe, maxprobeshift, promote_typejoin
 
