@@ -18,6 +18,9 @@ struct FlatDict{K,V} <: AbstractDict{K,V}
     FlatDict{K,V}() where {K,V} =
         new(Vector{K}(), Vector{V}(),
             Vector{NewPair{K,V}}(), Vector{NewPair{K,V}}())
+
+    FlatDict{K,V}(d::FlatDict{K,V}) where V where K =
+        new(copy(d.keys), copy(d.vals), copy(d.news), copy(d.temp))
 end
 
 

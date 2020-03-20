@@ -1,6 +1,13 @@
 @testset "construction ($A, $B)" for (A, B) in gettypes()
-    @test FlatDict{A,B}() isa FlatDict{A,B}
+    fd = FlatDict{A,B}()
+    @test fd isa FlatDict{A,B}
     @test eltype(FlatDict{A,B}) == Pair{A,B}
+
+    push!(fd, _rand(A) => _rand(B))
+    fd2 = FlatDict{A,B}(fd)
+    @test isequal(fd, fd2)
+    empty!(fd2)
+    @test length(fd) == 1
 end
 
 @testset "update ($A, $B)" for (A, B) in gettypes()
