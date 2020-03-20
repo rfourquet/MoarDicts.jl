@@ -71,6 +71,9 @@ end
     @test md′ === md
     dd′ = convert(Associative, dd)
     @test dd′ === dd
+
+    @test [Dict(_rand(A) => _rand(B)), MultiDict(_rand(A) => _rand(B))] isa Vector{Associative}
+    @test [MultiDict{A,B}(), MultiDict{B,A}(), MultiDict{Nothing,Bool}()] isa Vector{MultiDict}
 end
 
 @testset "MultiDict iterate ($A, $B)" for (A, B) in gettypes()

@@ -6,6 +6,10 @@ abstract type AbstractMultiSet{K} end
 
 const Associative = Union{AbstractDict,AbstractMultiDict}
 
+# work-around the fact that Associative is not an abstract type
+# it might not be fully OK to return a Union here...
+promote_rule(::Type{<:AbstractDict}, ::Type{<:AbstractMultiDict}) = Associative
+
 eltype(::Type{<:AbstractMultiSet{K}}) where {K} = K
 
 # iterates values for 1 given key
