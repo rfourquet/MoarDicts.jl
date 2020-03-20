@@ -24,6 +24,10 @@
     @test fd6 isa FlatDict{A,B}
     @test length(fd6) ∈ 1:3
 
+    fd7 = FlatDict((_rand(A) => _rand(B), _rand(A) => _rand(B)))
+    @test fd7 isa FlatDict{A,B}
+    @test length(fd7) ∈ 1:2
+
     @test isempty(empty(fd6))
     @test empty(fd6) isa FlatDict{A,B}
     ee = empty(fd6, Int, Bool)
@@ -36,6 +40,10 @@ end
     @test isempty(FlatDict())
     @test FlatDict(()) isa FlatDict{Any,Any}
     @test isempty(FlatDict(()))
+
+    fd = FlatDict((1=>2, 0x2=>true, UInt(0) => big(1)))
+    @test fd isa FlatDict{Integer,Integer}
+    @test length(fd) == 3
 end
 
 @testset "update ($A, $B)" for (A, B) in gettypes()

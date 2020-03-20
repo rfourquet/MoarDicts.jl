@@ -39,7 +39,20 @@ FlatDict{K,V}(ps::Pair...) where {K,V} = FlatDict{K,V}(ps)
 FlatDict() = FlatDict{Any,Any}()
 FlatDict(kv::Tuple{}) = FlatDict()
 
+function FlatDict(kv)
+    try
+        dict_with_eltype((K, V) -> FlatDict{K, V}, kv, eltype(kv))
+    catch
+        if !isiterable(typeof(kv)) || !all(x->isa(x,Union{Tuple,Pair}),kv)
+            throw(ArgumentError("FlatDict(kv): kv needs to be an iterator of tuples or pairs"))
+        else
+            rethrow()
+        end
+    end
+end
+
 empty(d::FlatDict, ::Type{K}, ::Type{V}) where {K, V} = FlatDict{K,V}()
+
 
 ## internal: resort! & makekey & mapping & getval
 
