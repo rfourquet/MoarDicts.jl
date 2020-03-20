@@ -63,8 +63,14 @@ end
 
     dd = Dict(_rand(A) => _rand(B) for _=1:rand(1:9))
     md = convert(MultiDict, dd)
+    @test md isa MultiDict
     @test length(dd) == length(md)
     @test isequal(md, dd)
+
+    md′ = convert(Associative, md)
+    @test md′ === md
+    dd′ = convert(Associative, dd)
+    @test dd′ === dd
 end
 
 @testset "MultiDict iterate ($A, $B)" for (A, B) in gettypes()

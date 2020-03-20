@@ -1,6 +1,6 @@
 using MoarDicts, Random, Test
 
-using MoarDicts: MAX_NEWS_SEARCH, TEST_NCOMBOS_DEFAULT, TEST_TYPES_DEFAULT
+using MoarDicts: MAX_NEWS_SEARCH, TEST_NCOMBOS_DEFAULT, TEST_TYPES_DEFAULT, Associative
 
 if !isdefined(Base, :mergewith)
     using MoarDicts: mergewith, mergewith!

@@ -235,7 +235,7 @@ setindex!(t::AbstractMultiDict, v, k1, k2, ks...) =
 
 get!(t::AbstractMultiDict, key, default) = get!(() -> default, t, key)
 
-convert(::Type{T}, x::T) where {T<:AbstractMultiDict} = x
+convert(::Type{T}, x::T) where {T<:Associative} = x
 
 #!=
 function convert(::Type{T}, x::Associative) where T<:Associative
