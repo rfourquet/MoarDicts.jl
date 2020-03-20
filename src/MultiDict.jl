@@ -454,3 +454,11 @@ function filter!(pred, h::MultiDict{K,V}) where {K,V}
     end
     return h
 end
+
+# TODO (also for Base): widen to AbstractVector?
+# cf. https://github.com/JuliaLang/julia/pull/26440#discussion_r271635813
+function reduce(::typeof(merge), items::Vector{<:Associative})
+    K = mapreduce(keytype, promote_type, items)
+    V = mapreduce(valtype, promote_type, items)
+    return reduce(merge!, items; init=MultiDict{K,V}())
+end

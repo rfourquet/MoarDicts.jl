@@ -355,6 +355,25 @@ end
             @test isequal(Set(md[a]), Set([b]))
         end
     end
+
+    # reduce(merge, ...) which is specialized
+    mds = Associative[rand((MultiDict, Dict))(_rand(A) => _rand(B) for _=1:rand(1:9)) for _=1:rand(1:9)]
+    if length(unique!(typeof.(mds))) == 1
+        mds = identity.(mds) # would be Vector{Any} if all types non unique
+    end
+    @test mds isa Vector{<:Associative} # more of an assert, the rest depends on that
+    mdr = reduce(merge, mds)
+    @test mdr isa MultiDict{A,B} || mds isa Vector{<:AbstractDict}
+    if mdr isa MultiDict
+        for md in mds
+            for (k, v) in md
+                @test in(k => v, mdr, isequal)
+            end
+        end
+    else
+        @test eltype(mds) <: Dict
+    end
+    @test isequal(mdr, merge(mds...))
 end
 
 @testset "MultiDict mergewith[!]" begin
