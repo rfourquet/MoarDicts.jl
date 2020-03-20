@@ -36,6 +36,8 @@ FlatDict{K,V}(p::Pair) where {K,V} = push!(FlatDict{K,V}(), p)
 
 FlatDict{K,V}(ps::Pair...) where {K,V} = FlatDict{K,V}(ps)
 
+FlatDict() = FlatDict{Any,Any}()
+FlatDict(kv::Tuple{}) = FlatDict()
 
 ## internal: resort! & makekey & mapping & getval
 

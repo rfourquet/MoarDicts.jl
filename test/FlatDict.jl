@@ -25,6 +25,13 @@
     @test length(fd6) ∈ 1:3
 end
 
+@testset "FlatDict construction default type" begin
+    @test FlatDict() isa FlatDict{Any,Any}
+    @test isempty(FlatDict())
+    @test FlatDict(()) isa FlatDict{Any,Any}
+    @test isempty(FlatDict(()))
+end
+
 @testset "update ($A, $B)" for (A, B) in gettypes()
     fd = FlatDict{A,B}()
     a, b, c = _rand.((A, B, B))
