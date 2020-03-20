@@ -8,6 +8,10 @@
     @test isequal(fd, fd2)
     empty!(fd2)
     @test length(fd) == 1
+
+    push!(fd, _rand(A) => _rand(B))
+    fd3 = FlatDict{A,B}(p for p in fd)
+    @test isequal(fd3, fd)
 end
 
 @testset "update ($A, $B)" for (A, B) in gettypes()

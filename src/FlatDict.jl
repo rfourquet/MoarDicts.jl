@@ -23,6 +23,13 @@ struct FlatDict{K,V} <: AbstractDict{K,V}
         new(copy(d.keys), copy(d.vals), copy(d.news), copy(d.temp))
 end
 
+function FlatDict{K,V}(kv) where V where K
+    h = FlatDict{K,V}()
+    for (k, v) in kv
+        push!(h, k => v)
+    end
+    h
+end
 
 ## internal: resort! & makekey & mapping & getval
 
