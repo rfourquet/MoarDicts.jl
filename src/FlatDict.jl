@@ -39,6 +39,9 @@ FlatDict{K,V}(ps::Pair...) where {K,V} = FlatDict{K,V}(ps)
 FlatDict() = FlatDict{Any,Any}()
 FlatDict(kv::Tuple{}) = FlatDict()
 
+FlatDict(ps::Pair{K,V}...) where {K,V} = FlatDict{K,V}(ps)
+FlatDict(ps::Pair...)                  = FlatDict(ps)
+
 function FlatDict(kv)
     try
         dict_with_eltype((K, V) -> FlatDict{K, V}, kv, eltype(kv))
