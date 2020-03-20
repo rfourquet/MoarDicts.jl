@@ -23,6 +23,12 @@
     fd6 = FlatDict{A,B}(_rand(A) => _rand(B), _rand(A) => _rand(B), _rand(A) => _rand(B))
     @test fd6 isa FlatDict{A,B}
     @test length(fd6) ∈ 1:3
+
+    @test isempty(empty(fd6))
+    @test empty(fd6) isa FlatDict{A,B}
+    ee = empty(fd6, Int, Bool)
+    @test isempty(ee)
+    @test ee isa FlatDict{Int,Bool}
 end
 
 @testset "FlatDict construction default type" begin
