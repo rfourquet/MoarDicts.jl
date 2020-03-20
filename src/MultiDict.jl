@@ -462,3 +462,16 @@ function reduce(::typeof(merge), items::Vector{<:Associative})
     V = mapreduce(valtype, promote_type, items)
     return reduce(merge!, items; init=MultiDict{K,V}())
 end
+
+#!=
+function map!(f, iter::ValueIterator{<:MultiDict})
+    dict = iter.dict
+    vals = dict.vals
+    # @inbounds is here so the it gets propagated to isslotfiled
+    @inbounds for i = dict.idxfloor:lastindex(vals)
+        if isslotfilled(dict, i)
+            vals[i] = f(vals[i])
+        end
+    end
+    return iter
+end

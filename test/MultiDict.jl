@@ -427,6 +427,24 @@ end
     end
 end
 
+@testset "MultiDict map!(f, values(md)) ($A, $B)" for (A, B) in gettypes()
+    md = MultiDict(_rand(A) => _rand(B) for _=1:rand(1:9))
+    randval = # reproducible randomish function
+        let i = 0,
+            r = rand(Bool, length(md)),
+            c = _rand(B)
+            x -> r[mod1(i += 1, length(md))] ? x : c
+        end
+
+    vs = collect(values(md))
+    mv0 = map!(randval, vs, vs)
+    mv1 = map(randval, values(md))
+    mv2 = map!(randval, values(md))
+    @test mv2 === values(md)
+    @test isequal(collect(mv2), mv1)
+    @test isequal(mv1, mv0)
+end
+
 @testset "MultiDict setindex!/getindex" begin
     md = MultiDict{Int,Int}(1=>2, 1=>2)
     @test collect(md[1]) == [2, 2]

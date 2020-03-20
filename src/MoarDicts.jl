@@ -3,9 +3,9 @@ module MoarDicts
 import Base: ==, _typeddict, convert, copy, copy!, delete!, eltype, empty,
              empty!, filter, filter!, get, get!, getindex, getkey, grow_to!,
              hash, haskey, in, isempty, isequal, iterate, keys, keytype,
-             length, merge, merge!, pairs, pop!, promote_rule, push!, reduce,
-             setindex!, show, summary, typeinfo_eltype, typeinfo_implicit,
-             typeinfo_prefix, valtype, values
+             length, map!, merge, merge!, pairs, pop!, promote_rule, push!,
+             reduce, setindex!, show, summary, typeinfo_eltype,
+             typeinfo_implicit, typeinfo_prefix, valtype, values
 
 if VERSION >= v"1.5.0-DEV.182"
     import Base: mergewith, mergewith!
