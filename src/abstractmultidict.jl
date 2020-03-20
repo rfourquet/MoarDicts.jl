@@ -1,5 +1,5 @@
-using Base: _truncate_at_width_or_chars, _tt2, hasha_seed, promoteK, promoteV,
-            secret_table_token, show_circular, show_vector, showarg
+using Base: Callable, _truncate_at_width_or_chars, _tt2, hasha_seed,promoteK,
+            promoteV, secret_table_token, show_circular, show_vector, showarg
 
 abstract type AbstractMultiDict{K,V} end
 abstract type AbstractMultiSet{K} end
@@ -118,6 +118,31 @@ function merge!(d::Associative, others::Associative...)
     return d
 end
 
+#!=
+function mergewith!(combine, d::Associative, others::Associative...)
+    if d isa AbstractMultiDict
+        ks = Set(keys(d)) # TODO: optimize (at least for MultiDict)
+        for k in ks
+            d[k]= tuple(foldl(combine, d[k]))
+        end
+    end
+    for other in others
+        for (k, v) in other
+            vnew = haskey(d, k) ? combine(get(d, k, nothing), v) : v
+            if d isa AbstractMultiDict
+                d[k] = (vnew,)
+            else
+                d[k] = vnew
+            end
+        end
+    end
+    return d
+end
+
+if VERSION < v"1.5.0-DEV.182"
+    merge!(combine::Callable, args...) = mergewith!(combine, args...)
+end
+
 keytype(::Type{<:AbstractMultiDict{K,V}}) where {K,V} = K
 keytype(a::AbstractMultiDict) = keytype(typeof(a))
 valtype(::Type{<:AbstractMultiDict{K,V}}) where {K,V} = V
@@ -125,6 +150,12 @@ valtype(a::AbstractMultiDict) = valtype(typeof(a))
 
 merge(d::Associative, others::Associative...) =
     merge!(_typeddict(d, others...), others...)
+
+mergewith(combine, d::Associative, others::Associative...) =
+    mergewith!(combine, _typeddict(d, others...), others...)
+
+merge(combine::Callable, d::Associative, others::Associative...) =
+    merge!(combine, _typeddict(d, others...), others...)
 
 function _typeddict(d::Associative, others::Associative...)
     K = promoteK(keytype(d), others...)

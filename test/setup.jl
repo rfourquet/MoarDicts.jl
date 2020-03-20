@@ -2,6 +2,10 @@ using MoarDicts, Random, Test
 
 using MoarDicts: MAX_NEWS_SEARCH, TEST_NCOMBOS_DEFAULT, TEST_TYPES_DEFAULT
 
+if !isdefined(Base, :mergewith)
+    using MoarDicts: mergewith, mergewith!
+end
+
 _rand(::Type{T}) where {T} = rand(T)
 _rand(::Type{BigInt}) = rand(big.(typemin(Int128):typemax(Int128)))
 _rand(T::Type{<:Union{String,Symbol}}) = T(randstring())

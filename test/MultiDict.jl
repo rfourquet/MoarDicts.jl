@@ -348,6 +348,33 @@ end
     end
 end
 
+@testset "MultiDict mergewith[!]" begin
+    md = MultiDict(1=>2, 1=>3, 2=>4)
+    dd = Dict(1=>1, 2=>2, 3=>3)
+
+    @test merge(+, md) == mergewith(+, md) == MultiDict(1=>5, 2=>4)
+    @test md == MultiDict(1=>2, 1=>3, 2=>4) # unchanged
+    m1 = merge(+, md, dd)
+    @test m1 isa MultiDict{Int,Int}
+    m2 = merge(+, dd, md)
+    @test m2 isa MultiDict{Int,Int}
+    @test m1 == m2 == MultiDict(1=>6, 2=>6, 3=>3)
+
+    md2 = copy(md)
+    @test md2 === merge!(+, md2) == MultiDict(1=>5, 2=>4)
+    md2 = copy(md)
+    @test md2 === mergewith!(+, md2) == MultiDict(1=>5, 2=>4)
+    md2 = copy(md)
+    @test md2 === merge!(+, md2, dd) == MultiDict(1=>6, 2=>6, 3=>3)
+    md2 = copy(md)
+    @test md2 === mergewith!(+, md2, dd) == MultiDict(1=>6, 2=>6, 3=>3)
+
+    dd2 = copy(dd)
+    @test dd2 === merge!(+, dd2, md) == Dict(1=>6, 2=>6, 3=>3)
+    dd2 = copy(dd)
+    @test dd2 === mergewith!(+, dd2, md) == Dict(1=>6, 2=>6, 3=>3)
+end
+
 @testset "MultiDict filter[!] ($A, $B)" for (A, B) in gettypes()
     md0 = MultiDict(_rand(A) => _rand(B) for _=1:9)
     len = length(md0)

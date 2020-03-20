@@ -7,6 +7,10 @@ import Base: ==, _typeddict, convert, copy, copy!, delete!, eltype, empty,
              summary, typeinfo_eltype, typeinfo_implicit, typeinfo_prefix,
              valtype, values
 
+if VERSION >= v"1.5.0-DEV.182"
+    import Base: mergewith, mergewith!
+end
+
 if isdefined(Base, :limitrepr)
     using Base: limitrepr
 else
