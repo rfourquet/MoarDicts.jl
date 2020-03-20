@@ -51,6 +51,22 @@
     end
 end
 
+@testset "MultiDict conversion ($A, $B)" for (A, B) in gettypes()
+    md = MultiDict(_rand(A) => _rand(B) for _=1:rand(1:9))
+    @test convert(AbstractMultiDict, md) === md
+    if allunique(keys(md))
+        @test convert(Dict, md) isa Dict{A,B}
+        # TODO: test other dicts (doesn't work with Base.ImmutableDict)
+    else
+        @test_throws ErrorException convert(Dict, md)
+    end
+
+    dd = Dict(_rand(A) => _rand(B) for _=1:rand(1:9))
+    md = convert(MultiDict, dd)
+    @test length(dd) == length(md)
+    @test isequal(md, dd)
+end
+
 @testset "MultiDict iterate ($A, $B)" for (A, B) in gettypes()
     md = MultiDict{A,B}()
     P = eltype(md)
